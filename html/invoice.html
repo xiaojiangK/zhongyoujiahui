@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <style media="screen">
+      .wen-ordertype{
+        color: #333;
+        font-size: .8rem;
+        padding: 1.3rem 0;
+        vertical-align: middle;
+        display: inline-block;
+        float:right;
+      }
+      .wen-li{
+        display: flex;
+        margin-bottom: 1rem;
+        background: #fff;
+        width:100%;
+      }
+      .wen-li a{
+        display: block;
+        width:100%;
+      }
+      .wen-item-ctn{
+        flex:1;
+        vertical-align: middle;
+        display: inline-block;
+        font-size: .9rem;
+      }
+      .mui-table-view:after{
+        background: none;
+      }
+      .mui-table-view-cell:after{
+        background: none;
+      }
+      .mui-table-view:before{
+        background: none;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='my.html'></a>
+			<h1 class="mui-title">我的发票</h1>
+		</header>
+  <div class="mui-content" id='app' hidden>
+      <ul class="mui-table-view" style="margin-top:2rem;background:none;">
+          <li class="mui-table-view-cell wen-li" v-for='item in datas'>
+            <a href="javascript:void(0)">
+              <div class="wen-item-ctn">
+                <div class="">订单号：<span class='main-txt'>{{item.order_number}}</span></div>
+                <div class="">项目名称：<span class='main-txt'>{{item.project_name}}</span></div>
+                <div class="">订单金额（元）：<span class='main-txt'>{{item.total_amount}}</span></div>
+              </div>
+              <span class='wen-ordertype'>{{item.state_name}}</span>
+            </a>
+          </li>
+      </ul>
+      <!-- 提醒 -->
+      <div style="text-align:center;margin-top:50%;translate:transform(-50%)" v-if='noData'>{{remindTxt}}</div>
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+  </div>
+  <!-- 加载中 -->
+  <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+    <img src="../image/loading_more.gif" alt="">
+  </div>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+
+  var vue = new Vue({
+    el:'#app',
+    data:{
+      noData:false,
+      remindTxt:'',
+      datas:[]
+    },
+    methods:{
+
+    }
+  })
+  // 发票列表
+  api.ajax({
+      url: useUrl.orderInvoiceList,
+      method: 'get',
+      data: {
+          values: {
+              page: 1,
+              page_size:5,
+              token:localStorage.getItem('token')
+          }
+      }
+  },function(ret, err){
+    $('#loading').hide();
+    $('#app').show();
+      if (ret.code == 200) {
+        if(ret.data.length){
+          vue.datas = ret.data;
+        }else{
+          vue.noData = true;
+          vue.remindTxt = '暂无数据';
+        }
+
+      } else {
+        // vue.noData = true;
+        vue.remindTxt = ret.msg;
+        $("#remindPopup").animate({display:'block'},1000,function(){
+          $(this).css('display','none')
+        })
+      }
+  });
+}
+</script>
+</html>

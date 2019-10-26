@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-byplugin{
+        width: 65%;
+        vertical-align: middle;
+        line-height: 2.6rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+        font-size: 15px;
+        color: #bbb;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-project-info{
+        width: 65%;
+        vertical-align: middle;
+        line-height: 2.6rem;
+      }
+      .wen-disabled{
+        height: 3.8rem;
+        background: #ddd;
+      }
+      .wen-project-ipt{
+        opacity: 0;
+      }
+      .wen-project-img{
+        width: 3rem;
+        height: 3rem;
+        position: absolute;
+        left: 35%;
+        top: .5rem;
+      }
+      .wen-project-img img{
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='order.html'></a>
+			<h1 class="mui-title">订单发票信息</h1>
+		</header>
+		<div class="mui-content">
+			<form class="mui-input-group">
+        <div class="mui-input-row">
+					<label>*项目名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目名称">
+				</div>
+        <div class="mui-input-row">
+					<label>*订单号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写订单号">
+				</div>
+        <div class="mui-input-row">
+					<label>*合计金额：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写合计金额">
+				</div>
+        <div class="mui-input-row">
+					<label>*开票类型：</label>
+          <select class="wen-sel" name="">
+            <option value="">增值税普通发票（股份）</option>
+            <option value="">增值税普通发票（工程）</option>
+            <option value="">增值税专用发票（股份）</option>
+            <option value="">增值税专用发票（工程）</option>
+            <option value="">劳务发票（工程）</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div>
+        <div class="mui-input-row">
+					<label>*开票客户：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写开票客户">
+				</div>
+        <div class="mui-input-row">
+					<label>*公司类型：</label>
+          <select class="wen-sel" name="">
+            <option value="">股份公司</option>
+            <option value="">工程公司</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div>
+        <div class="mui-input-row">
+					<label>*开票税号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写开票税号">
+				</div>
+        <div class="mui-input-row">
+					<label>*开户银行：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写开户银行">
+				</div>
+        <div class="mui-input-row">
+					<label>*对公账号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写对公账号">
+				</div>
+        <div class="mui-input-row">
+					<label>*收票联系人：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写收票联系人">
+				</div>
+        <div class="mui-input-row">
+					<label>*收票地址：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写收票地址">
+				</div>
+        <div class="mui-input-row">
+					<label>*收票联系人电话：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写收票联系人电话">
+				</div>
+        <div class="mui-input-row">
+					<label>备注：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写备注信息">
+				</div>
+        <div class="mui-input-row" style="height:4rem;">
+					<label>*附件：</label>
+          <input type="file" class="mui-input-clear mui-input wen-project-ipt">
+          <div class="wen-project-img">
+            <img src="" alt="">
+          </div>
+				</div>
+			</form>
+      <div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary" onclick="complete()">完成</button>
+      </div>
+		</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+    function complete(){
+
+      window.location.href = 'order.html'
+    }
+
+    //项目详情
+    function getProjectDetail(){
+      api.ajax({
+          url: useUrl.projectList,
+          method: 'get',
+          data: {
+              values: {
+                  id: '',
+                  token:''
+              }
+          }
+      },function(ret, err){
+          if (ret) {
+
+              alert( JSON.stringify( ret ) );
+          } else {
+              alert( JSON.stringify( err ) );
+          }
+      });
+    }
+
+
+
+</script>
+</html>

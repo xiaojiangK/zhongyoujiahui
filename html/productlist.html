@@ -1,0 +1,567 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+        .mui-input-group .mui-input-row {
+            height: auto;
+        }
+
+        .mui-input-row label {
+            font-size: .9rem;
+            line-height: 1.2rem;
+        }
+
+        .wen-seldownicon {
+            line-height: 2.6rem;
+            padding-right: 1rem;
+            font-size: 15px;
+            color:#bbb;
+        }
+
+        .wen-contract {
+            margin: 2rem auto;
+            text-align: center;
+            font-size: 1rem;
+            text-decoration: underline;
+            color: blue;
+        }
+        .wen-disabled {
+            height: 3.8rem !important;
+            background: #ddd !important;
+        }
+        input[type=search].wen-search{
+          background: #fff!important;
+          height: 2.5rem;
+          line-height: 2.5rem;
+        }
+        .wen-list-right-info{
+          text-align: right;
+          width: 65%;
+          padding: .6rem 1rem;
+          font-size: 1rem;
+          line-height: 1.6rem;
+        }
+        .mui-input-group{
+          background: none;
+        }
+        .mui-input-group .mui-input-row{
+          background: #fff;
+        }
+        .wen-selbox{
+          position: relative;
+          background: #fff;
+          height: 2.5rem;
+          margin-bottom: 1rem;
+        }
+        .wen-searchbtn {
+          color: #007aff;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 6rem;
+          height: 2.5rem;
+          line-height: 2.5rem;
+          background: none;
+          text-align: center;
+          border-left:1px solid #f7f7f7;
+        }
+
+        /*弹窗*/
+        .goods-popup {
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .goods-dialog {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(0,0,0,.6);
+        }
+        .goods-modal {
+            width: 90%;
+            height: 80%;
+            z-index: 101;
+            top: 0;
+            left: 0;
+            background: #fff;
+            margin: auto;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        .goods-title {
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .goods-items {
+            height: 90%;
+            overflow-y: scroll;
+            padding: 0;
+        }
+        .good-item {
+            list-style: none;
+            margin:.5rem 0;
+        }
+        .good-item input{
+          vertical-align: middle;
+        }
+        .goods-name{
+          font-size: 1rem;
+          margin-left:1rem;
+          vertical-align: middle;
+        }
+
+        /*已经添加的产品列表*/
+        .wen-list-item {
+            background: #fff;
+            padding: 1rem 5%;
+            font-size: .9rem;
+            margin-bottom: .5rem;
+            position: relative;
+          }
+          span.wen-list-name {
+              color: #999;
+              padding-right: .5rem;
+          }
+          .wen-list-desc {
+              width: 80%;
+              display: inline-block;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              vertical-align: middle;
+          }
+          .wen-list-count{
+            color: orange;
+          }
+          .wen-list-price{
+            float: right;
+            color: #999;
+          }
+          .wen-list-ctn {
+              position: relative;
+          }
+          .wen-list-price {
+              color: #999;
+              top: 0;
+              right: 0;
+              position: absolute;
+          }
+          .wen-list-topfixbtn{
+            position: fixed;
+            width:95%;
+            margin:0 auto;
+            left:0;
+            right:0;
+            z-index: 10;
+          }
+          .wen-list-lists{
+            padding:4rem 0;
+          }
+          .bottomBtn{
+            position: fixed;
+            bottom:0;
+            z-index: 100;
+            width:95%;
+            margin:0 2.5%;
+          }
+          .wen-sel{
+            direction: rtl;
+          }
+
+          .cancel-btn{
+          	float: right;
+            position: absolute;
+            top:2rem;
+            right:1rem;
+          }
+
+          .hd-close{
+            position: absolute;
+            right:0rem;
+            top:0rem;
+            width:1.2rem;
+            height: 1.2rem;
+          }
+
+    </style>
+</head>
+
+<body>
+    <header class="mui-bar mui-bar-nav" id='header'>
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" onclick="api.closeWin()"></a>
+        <h1 class="mui-title">添加产品</h1>
+    </header>
+    <div class="mui-content" id='apps' hidden>
+      <div>
+        <button class="mui-btn mui-btn-block mui-btn-primary wen-list-topfixbtn" @click="readdProduct">添加产品</button>
+        <div class="wen-list-lists">
+          <div class="wen-list-item" v-for='(item,index) in hadAddGoodsList' @click='lookProduct(index)'>
+            <div class="wen-list-ctn">
+  			      <span class="wen-list-name">名称</span>
+              <span class="wen-list-desc">{{item.project_name}}</span>
+  			    </div>
+            <div class="wen-list-ctn">
+  			      <span class="wen-list-name">代码</span>
+              <span class="wen-list-desc">{{item.order_number}}</span>
+  			    </div>
+            <div class="wen-list-ctn">
+  			      <span class="wen-list-name">规格</span>
+              <span class="wen-list-desc">{{item.goods_specification}}</span>
+  			    </div>
+            <div class="wen-list-ctn">
+  			      <span class="wen-list-name">描述</span>
+              <span class="wen-list-desc">{{item.FDescription}}</span>
+  			    </div>
+            <div class="wen-list-ctn" v-if='user'>
+              <span class="wen-list-name">代理价</span>
+              <span class="wen-list-desc wen-list-count">x{{item.proxy_unit_price ? item.proxy_unit_price : '0'}}元</span>
+  			    </div>
+            <div class="wen-list-ctn">
+              <span class="wen-list-name">单价</span>
+              <span class="wen-list-desc wen-list-count">x{{item.unit_price}}元</span>
+  			    </div>
+            <div class="wen-list-ctn">
+              <span class="wen-list-name">数量</span>
+              <span class="wen-list-desc wen-list-count">{{item.number}}{{item.unit_Name}}</span>
+              <span class="wen-list-price" style='font-weight:bold;color:blue;'>{{item.allPrice}}元</span>
+  			    </div>
+            <div class="wen-list-ctn" v-if='item.other_project_note'>
+  			      <span class="wen-list-name">备注</span>
+              <span class="wen-list-desc">{{item.other_project_note}}</span>
+  			    </div>
+            <button type="button" class="mui-btn cancel-btn" @click.stop="deleteProduct(index)">删除</button>
+          </div>
+        </div>
+        <button class="mui-btn mui-btn-block mui-btn-primary bottomBtn" @click="addProduct" v-if='operational'>提交订单</button>
+      </div>
+      <!-- 提醒 -->
+      <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='noData' hidden>{{remindTxt}}</div>
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+		</div>
+
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading' hidden>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#apps').css('margin-top','1.5rem')
+   $('#loading').show();
+
+    var pageParam = api.pageParam; // 页面传参
+
+    // 编辑订单(已提交)
+    if(pageParam.id){
+      localStorage.setItem('orderId',pageParam.id)
+    }
+    // 保存订单信息
+    if(pageParam.project_id){
+      var orderInfo = {
+        project_id  : pageParam.project_id,
+        currency:pageParam.currency,
+        payment_method:pageParam.payment_method,
+        note:pageParam.note,
+        address:pageParam.address,
+        consignee_name:pageParam.consignee_name,
+        consignee_phone:pageParam.consignee_phone,
+        order_date:pageParam.order_date,
+        committed_payment_time:pageParam.committed_payment_time,
+        required_delivery_date:pageParam.required_delivery_date,
+        committed_remittance_time:pageParam.committed_remittance_time,
+        delivery_mode:pageParam.delivery_mode,
+        freight_payer:pageParam.freight_payer,
+        inspection_report_certificate:pageParam.inspection_report_certificate
+      }
+      localStorage.setItem('orderInfo',JSON.stringify(orderInfo))
+    }
+
+    $('#loading').hide();
+    $('#apps').show()
+
+    var vue = new Vue({
+      el:'#apps',
+      data:{
+        remindTxt:'',
+        isShow:true,
+        searchName:'',
+        project_name:'',
+        order_number:'',
+        goods_specification:'',
+        execution_standard:'',
+        FSaleUnitId:'',
+        FSaleUnitName:'',
+        // project_index:0,
+        // project_unit_options:[],
+        number:'',
+        unit_price:'',
+        proxy_unit_price:'',
+        allMoney:0,
+        other_project_note:'',
+        page:1,
+        page_size:5,
+        goodsList:[],
+        hadAddGoodsList:[],// 该订单已经添加的产品
+        products:[],
+        product_id:'',
+        unit_Name:'',
+        operational:false,
+        user:true,
+        disabled_btn:true
+      },
+      methods:{
+        deleteProduct(index){
+          var _arr = vue.hadAddGoodsList;
+          _arr.splice(index,1)
+          vue.hadAddGoodsList = _arr;
+          var _parr = vue.products;
+          _parr.splice(index,1)
+          vue.products = _parr;
+        },
+        // 编辑产品信息
+        lookProduct($index){
+          api.openWin({
+              name: 'editproduct',
+              url: './editproduct.html',
+              reload:true,
+              pageParam: {
+                goodsList:vue.hadAddGoodsList,
+                index:$index,
+                products:vue.products
+              }
+          });
+        },
+        readdProduct(){
+          api.openWin({
+              name: 'addproduct',
+              url: './addproduct.html',
+              reload:true,
+              pageParam: {
+                goodsList:vue.hadAddGoodsList,
+                products:vue.products
+              }
+          });
+          // api.closeWin()
+        },
+        cloceModal(){
+            $('#showPopup').hide();
+        },
+        addProduct(){
+          var ordersInfo = JSON.parse(localStorage.getItem('orderInfo'))
+          var locateItems  = JSON.parse(localStorage.getItem('locateItems'))
+          if(vue.disabled_btn){
+            vue.disabled_btn = false
+            if(pageParam.id){
+              api.ajax({
+                  url: useUrl.orderEdit ,
+                  method: 'post',
+                  data: {
+                      values: {
+                        id: localStorage.getItem('orderId'),
+                        project_id  : ordersInfo.project_id,
+                        currency:ordersInfo.currency,
+                        payment_method:ordersInfo.payment_method,
+                        note:ordersInfo.note,
+                        address:ordersInfo.address,
+                        consignee_name:ordersInfo.consignee_name,
+                        consignee_phone:ordersInfo.consignee_phone,
+                        order_date:ordersInfo.order_date,
+                        committed_payment_time:ordersInfo.committed_payment_time,
+                        required_delivery_date:ordersInfo.required_delivery_date,
+                        committed_remittance_time:ordersInfo.committed_remittance_time,
+                        delivery_mode:ordersInfo.delivery_mode,
+                        freight_payer:ordersInfo.freight_payer,
+                        inspection_report_certificate:ordersInfo.inspection_report_certificate,
+                        products:vue.products,
+                        token: localStorage.getItem('token')
+                      }
+                  }
+              },function(ret, err){
+                  if (ret.code == 200) {
+                    localStorage.setItem('orderInfo',[])
+                    if(locateItems){
+                      locateItems.splice(pageParam.index,1)
+                      localStorage.setItem('locateItems',JSON.stringify(locateItems))
+                    }
+                      vue.remindTxt = '提交成功'
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                        window.location.href = 'order.html'
+                      })
+                  } else {
+                    vue.remindTxt = '信息未填写完整'
+                    $("#remindPopup").animate({display:'block'},1000,function(){
+                      $(this).css('display','none')
+                    })
+                  }
+              });
+            }else{
+              api.ajax({
+                  url: useUrl.orderCreate ,
+                  method: 'post',
+                  data: {
+                      values: {
+                        project_id  : ordersInfo.project_id,
+                        currency:ordersInfo.currency,
+                        payment_method:ordersInfo.payment_method,
+                        note:ordersInfo.note,
+                        address:ordersInfo.address,
+                        consignee_name:ordersInfo.consignee_name,
+                        consignee_phone:ordersInfo.consignee_phone,
+                        order_date:ordersInfo.order_date,
+                        committed_payment_time:ordersInfo.committed_payment_time,
+                        required_delivery_date:ordersInfo.required_delivery_date,
+                        committed_remittance_time:ordersInfo.committed_remittance_time,
+                        delivery_mode:ordersInfo.delivery_mode,
+                        freight_payer:ordersInfo.freight_payer,
+                        inspection_report_certificate:ordersInfo.inspection_report_certificate,
+                        products:this.products,
+                        token: localStorage.getItem('token')
+                      }
+                  }
+              },function(ret, err){
+                  if (ret.code == 200) {
+                    localStorage.setItem('orderInfo',[])
+                    if(locateItems){
+                      locateItems.splice(pageParam.index,1)
+                      localStorage.setItem('locateItems',JSON.stringify(locateItems))
+                    }
+                      vue.remindTxt = '提交成功'
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                        window.location.href = 'order.html'
+                      })
+                  } else {
+                    vue.remindTxt = '信息未填写完整'
+                    $("#remindPopup").animate({display:'block'},1000,function(){
+                      $(this).css('display','none')
+                    })
+                  }
+              });
+            }
+          }else{
+            api.toast({
+                msg: '同一时间不能提交多次',
+                duration: 1000,
+                location: 'bottom'
+            });
+
+          }
+
+
+        }
+      }
+    })
+
+
+    // 反提交订单
+      if(pageParam.products){
+        $('#isShow').show()
+        vue.isShow = false
+        var productsDatas = pageParam.products
+        var datas = ''
+        var obj = '';
+        var productsObj = '';
+        for(var i = 0 ; i < productsDatas.length ; i ++){
+          datas = pageParam.products[i]
+          obj = {product_id:datas.product_id,order_number:datas.product_number,project_name:datas.product_name,goods_specification:datas.product_spec,FDescription:datas.product_description,order_number:datas.order_id,execution_standard:datas.execution_standard,number:datas.number,unit_Name:datas.unit_name,unit_id:datas.unit_id,proxy_unit_price:datas.proxy_unit_price,unit_price:datas.unit_price,allPrice:Number(datas.number * datas.unit_price).toFixed(2),note:datas.note}
+          productsObj = {
+            product_id:datas.product_id,
+            unit_id:datas.unit_id,
+            execution_standard:datas.execution_standard,
+            number:datas.number,
+            unit_price:datas.unit_price,
+            proxy_unit_price:datas.proxy_unit_price,
+            note:datas.note
+          }
+          vue.hadAddGoodsList.push(obj);
+          vue.products.push(productsObj)
+        }
+      }
+    // 编辑产品后重新展示
+    if(pageParam.goodsList){
+      vue.isShow = false
+      $('#isShow').show()
+      vue.hadAddGoodsList = pageParam.goodsList
+      vue.products = pageParam.products
+    }
+    // 产品单位
+    // api.ajax({
+    //     url: useUrl.productUnit,
+    //     method: 'get',
+    //     data: {
+    //         values: {
+    //             page:0,
+    //             page_size:0,
+    //             search:'',
+    //             token:localStorage.getItem('token')
+    //         }
+    //     }
+    // },function(ret, err){
+    //     if (ret.code == 200) {
+    //         vue.project_unit_options = ret.data;
+    //         // vue.project_unit = ret.data[0].FUnitId;
+    //     }else{
+    //       vue.remindTxt = ret.msg
+    //       $("#remindPopup").animate({display:'block'},1000,function(){
+    //         $(this).css('display','none')
+    //       })
+    //     }
+    // });
+
+    // 角色判断
+
+    api.ajax({
+        url: useUrl.adminRoles,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          $.each(ret.data,function(i,res){
+            vue.operational = false
+            vue.user = true
+            res == '2' && (vue.operational = true)
+            res == '3' && (vue.operational = true)
+            res == '4' && (vue.operational = true)
+            res == '4' && (vue.user = false)
+          })
+        }
+    });
+
+
+
+}
+</script>
+
+</html>

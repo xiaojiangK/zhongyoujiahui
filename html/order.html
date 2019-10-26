@@ -1,0 +1,557 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/home.css">
+    <style media="screen">
+      .list-time {
+          font-size: .9rem;
+      }
+      .wen-li{
+        display: flex;
+        margin-bottom: 1rem;
+        background: #fff;
+      }
+      .wen-li a.wen-righticon{
+        width: 100%;
+        margin:-11px 0;
+        padding: .5rem 0;
+      }
+      .wen-item-ctn{
+        flex:1;
+        vertical-align: middle;
+        display: inline-block;
+        font-size: .9rem;
+      }
+      .wen-ordertype{
+        color: #fff;
+        background: #999;
+        font-size: .8rem;
+        padding: .3rem .5rem;
+        border-radius: 3px;
+        vertical-align: middle;
+        margin-right: .5rem;
+      }
+      .mui-select:before{
+        top:10px;
+        right:0px;
+      }
+      .mui-btn {
+        padding: .2rem .4rem;
+        font-size: .8rem;
+      }
+
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" style="padding-right: 15px;" id='header'>
+      <h1 class="mui-title">订单列表</h1>
+  </header>
+  <div class="mui-content" id='app' hidden>
+    <div class="wen-selbox">
+        <span class='mui-select' style="width:26%;display:inline-block;">
+          <select name="sel" class="wen-sel" v-model='navbar' style="width:100%;">
+            <option v-for='item in navbars' :value='item.status'>{{item.name}}</option>
+          </select>
+        </span>
+        <input type="text" placeholder="搜索订单编号、客户、地址" style='line-height:normal;width:58%;font-size:.8rem;margin:0;' v-model='search'>
+        <div class="wen-searchbtn mui-icon mui-icon-search" @click='searchProjectList' style='width:15%;'></div>
+    </div>
+
+      <ul class="mui-table-view" style="margin-top:1rem;background:none;">
+        <li class="mui-table-view-cell wen-li" v-for='(item,index) in locateItems'>
+          <a href="javascript:void(0)" style="display:inline-block;width:100%;margin:-11px 0;" @click.stop='gotoOrderCreate(item,index)'>
+            <div class="list-item-header">
+                <div class="list-item-header-txt"><span class="special-txt" style="color:red;">待提交</span></div>
+            </div>
+            <div class="wen-item-ctn">
+              <div class="">项目名称：<span class='main-txt'>{{item.project_name}}</span></div>
+              <div class="list-time">{{item.create_time}}</div>
+            </div>
+          </a>
+        </li>
+
+        <li class="mui-table-view-cell wen-li" v-for='(item,index) in items'>
+          <a href="javascript:void(0)" style="display:inline-block;width:100%;margin:-11px 0;" @click.stop='gotoOrderDetail(item.id,item.number,item.state)'>
+            <div class="list-item-header">
+                <div class="list-item-header-txt">订单号：<span class='main-txt'>{{item.number}}</span><span class="special-txt" v-bind:style="item.state == -1 || item.state == -2 ? 'color:red;' : ''">{{ item.is_my_audit && item.state_name == '审核中' ? '待审核' : item.state_name  }}</span></div>
+            </div>
+            <div class="wen-item-ctn">
+              <div class="">项目名称：<span class='main-txt'>{{item.project_name}}</span></div>
+              <div class="list-time">{{item.create_time}}</div>
+            </div>
+            <div class="" style="margin-top:.5rem;float:right;">
+              <div class="selDiv" v-if='item.is_confirmation == 0 && operational'>
+                <select class="selOptions" v-model="selected" @click.stop @change="applyUnfreeze(item.id)">
+                  <option value="-1">请审核</option>
+                  <option v-for="option in options" :value="option.value">
+                      {{ option.text }}
+                  </option>
+                </select>
+                <span class="mui-icon mui-icon-arrowdown wen-seldownicon" style="right:0"></span>
+              </div>
+              <button type="button" class="mui-btn mui-btn-primary" @click.stop="cancelOrder(item.id,'再来一单')" v-if='operational && item.state_name == "备货" || operational && item.state_name == "已完成"'>再来一单</button>
+              <button type="button" class="mui-btn" @click.stop="cancelOrder(item.id,'撤销')" v-if='item.state_name == "审核中" && item.is_confirmation == 1 && !item.is_my_audit && operational'>撤回</button>
+              <!-- 待审核 -->
+              <button type="button" class="mui-btn" @click.stop="cancelOrder(item.id,'通过')"  v-if='item.is_my_audit && !item.previous_audit && item.state_name == "审核中"'>通过</button>
+              <button type="button" class="mui-btn" @click.stop="cancelOrder(item.id,'驳回')"  v-if='item.is_my_audit && !item.previous_audit && item.state_name == "审核中"'>驳回</button>
+              <button type="button" class="mui-btn" @click.stop="cancelAudit(item.id)"  v-if='item.state_name == "审核中" && item.previous_audit'>撤销审核</button>
+            </div>
+          </a>
+        </li>
+      </ul>
+      <div class="get-more" @click='moreListFunc' style="margin-bottom:3rem;">{{moredatas}}</div>
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+      <!-- 提醒 -->
+      <div style="text-align:center;margin-top:50%;translate:transform(-50%)" v-if='noData'>{{remindTxt}}</div>
+      <div class="cancelBox" hidden id='cancelBox'>
+        <div class="dialog" @touchend='closeModel'></div>
+        <div class="cancelModel">
+          <div class="cancelTitle" style="border-bottom:none;"  :style="rejected ? 'padding:1rem 0 ;' : 'padding:2rem 0 ;'">{{modelTxt}}</div>
+          <textarea name="A" cols="10" rows="2" placeholder="20字以内" maxlength='20' style="margin:0 10% 1rem;width:80%;line-height:normal;border:none;border-bottom:1px solid #ddd;" v-if='rejected' v-model='reject_reason'></textarea>
+          <div class="modelBtns">
+            <div class="cancelBtn" @touchend='closeModel'>取消</div>
+            <div class="confirmBtn" @touchend='cancelOrderFunc'>确定</div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <!-- 加载中 -->
+  <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+    <img src="../image/loading_more.gif" alt="">
+  </div>
+
+
+  <footer class="mui-bar mui-bar-tab " id="footer">
+    <a class="mui-tab-item" id="a1" tapmode onclick="randomSwitchBth(this,'项目',0)" >
+      <span class="mui-icon mui-icon-home"></span>
+      <span class="mui-tab-label">项目</span>
+    </a>
+    <a class="mui-tab-item mui-active " id="a2" tapmode onclick="randomSwitchBth(this,'订单',1)" >
+      <span class="mui-icon mui-icon-email">
+      </span>
+      <span class="mui-tab-label">订单</span>
+    </a>
+    <a class="mui-tab-item" id="a3" tapmode onclick="randomSwitchBth(this,'个人中心',2)" >
+      <span class="mui-icon mui-icon-person"></span>
+      <span class="mui-tab-label">个人中心</span>
+    </a>
+  </footer>
+</body>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+  function randomSwitchBth(obj, name, index) {
+      var footerAct = $api.dom(footer, '.mui-tab-item.mui-active');
+      $api.removeCls(footerAct, 'mui-active');
+      $api.addCls(obj, 'mui-active');
+
+
+      if (index == 0) {
+          window.location.href = 'home.html'
+      } else if (index == 1) {
+          return false;
+      } else if (index == 2) {
+          window.location.href = 'my.html'
+      }
+  }
+var locateItems = JSON.parse(localStorage.getItem('locateItems'))
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#app').css('margin-top',headerH)
+   $('.wen-selbox').css('top',headerH)
+
+  var vue = new Vue({
+    el:'#app',
+    data:{
+      locateItems:locateItems,
+      remindTxt:'',
+      noData:false,
+      items:[],
+      item:'',
+      navbar:'',
+      navbars:[],
+      statusArrs:[],
+      activeClass:0,
+      page:1,
+      page_size:10,
+      cancelReason:'',
+      cancelId:'',
+      cancelOrders:[],
+      options:[
+        {value:0,text:'撤销'},
+        {value:1,text:'确认'}
+      ],
+      selected:-1,
+      $id:'', // 撤销id
+      modelTxt:'',
+      $index:'',// 删除本地index
+      $type:'', // 0:本地 1:库
+      moredatas:'加载更多',
+      search:'',
+      rejected:false,
+      reject_reason:'',
+      operational:false //可以下单/提交
+
+    },
+    methods:{
+      moreListFunc(){
+        api.ajax({
+            url: useUrl.orderList,
+            method: 'get',
+            data: {
+                values: {
+                    page: ++vue.page,
+                    page_size: vue.page_size,
+                    state:vue.navbar,
+                    token: localStorage.getItem('token')
+                }
+            }
+        }, function(ret, err) {
+          if(ret.data.length == 0){
+            vue.moredatas = '没有数据'
+          }
+            var arr = []
+            if(vue.items.length){
+              arr  = vue.items
+            }
+            if (ret.code == 200) {
+              if(ret.data.length){
+                var obj = {}
+                for(var i = 0; i < ret.data.length; i ++){
+                  obj = ret.data[i]
+                  arr.push(obj);
+                }
+                vue.items = arr;
+              }else{
+
+              }
+            }
+        });
+      },
+      gotoOrderCreate(item,index){
+        api.openWin({
+          name: 'addorder',
+          url: './addorder.html',
+          reload:true,
+          pageParam: {
+            localItem:item,
+            noGive:'-1',
+            index:index
+          }
+        })
+      },
+      closeModel(e){
+        e.preventDefault();
+        $('#cancelBox').hide()
+      },
+      cancelOrderFunc(e){
+        e.preventDefault();
+        if(vue.$type == '再来一单'){//再来一单
+          //再来一单
+          api.ajax({
+              url: useUrl.orderDetail,
+              method: 'get',
+              data: {
+                  values: {
+                      id: vue.$id,
+                      token:localStorage.getItem('token')
+                  }
+              }
+          },function(ret, err){
+            var storageItems = window.localStorage.getItem( 'locateItems' );
+            storageItems = storageItems ? JSON.parse( storageItems ) : [];
+            storageItems.push(ret.data)
+            localStorage.setItem('locateItems',JSON.stringify(storageItems))
+
+            vue.locateItems = storageItems
+            $('#cancelBox').hide()
+             getOrderList(vue.navbar);
+          });
+        }else if(vue.$type == '撤销'){//删除库
+          //取消订单
+          api.ajax({
+              url: useUrl.orderDelete,
+              method: 'post',
+              data: {
+                  values: {
+                      id: vue.$id,
+                      token:localStorage.getItem('token')
+                  }
+              }
+          },function(ret, err){
+            $('#cancelBox').hide()
+             getOrderList(vue.navbar);
+          });
+        }else if(vue.$type == '通过'){
+          api.ajax({
+              url: useUrl.orderAudit,
+              method: 'post',
+              data: {
+                  values: {
+                      id: vue.$id,
+                      token:localStorage.getItem('token'),
+                      type:0,
+                      reject_reason:' '
+                  }
+              }
+          },function(ret, err){
+            $('#cancelBox').hide()
+             getOrderList(vue.navbar);
+          });
+        }else if(vue.$type == '驳回'){
+          if(vue.reject_reason){
+            api.ajax({
+                url: useUrl.orderAudit,
+                method: 'post',
+                data: {
+                    values: {
+                        id: vue.$id,
+                        token:localStorage.getItem('token'),
+                        type:1,
+                        reject_reason:vue.reject_reason
+                    }
+                }
+            },function(ret, err){
+              $('#cancelBox').hide()
+               getOrderList(vue.navbar);
+            });
+          }else{
+            api.toast({
+                msg: '请输入驳回原因',
+                duration: 2000,
+                location: 'bottom'
+            });
+          }
+
+        }else{
+          return false;
+        }
+
+      },
+      cancelOrder(id,title){
+        $('#cancelBox').show()
+        vue.$id = id
+        vue.rejected = false
+        if(title == '撤销'){
+          vue.$type = '撤销'
+          vue.modelTxt = '确认撤销吗？'
+        }else if(title == '再来一单'){
+          vue.$type = '再来一单'
+          vue.modelTxt = '确定复制订单内容生成新的订单吗？'
+        }else if (title == '通过'){
+          vue.$type = '通过'
+          vue.modelTxt = '确定通过吗？'
+        }else if(title == '驳回'){
+          vue.$type = '驳回'
+          vue.modelTxt = '请输入驳回理由'
+          vue.rejected = true
+        }else{
+          return false;
+        }
+      },
+      cancelAudit(id){//撤销审核
+        api.ajax({
+            url: useUrl.orderRevokeAudit,
+            method: 'post',
+            data: {
+                values: {
+                    id: id,
+                    token:localStorage.getItem('token')
+                }
+            }
+        },function(ret, err){
+            getOrderList(vue.navbar);
+        });
+      },
+      applyUnfreeze(id) {
+        if(vue.selected == 0){//驳回
+          //取消订单
+          api.ajax({
+              url: useUrl.orderDelete,
+              method: 'post',
+              data: {
+                  values: {
+                      id: id,
+                      token:localStorage.getItem('token')
+                  }
+              }
+          },function(ret, err){
+            getOrderList(vue.navbar);
+          });
+        }else if(vue.selected == 1){//确定
+          //取消订单
+          api.ajax({
+              url: useUrl.orderConfirmation,
+              method: 'post',
+              data: {
+                  values: {
+                      id: id,
+                      token:localStorage.getItem('token')
+                  }
+              }
+          },function(ret, err){
+            getOrderList(vue.navbar);
+          });
+        }else{
+
+        }
+
+     },
+      searchProjectList(){
+        vue.noData = false;
+        vue.items = '';
+        vue.page = 1;
+        $('#Loading').hide()
+        getOrderList(this.navbar);
+      },
+      getIndex:function(index){
+        this.activeClass = index
+      },
+      gotoOrderDetail(id,number,state){
+        if(state == -1 || state == -2){
+          if(vue.operational){
+            api.openWin({
+                name: 'orderEdit',
+                url: './orderEdit.html',
+                reload:true,
+                pageParam: {
+                    id: id,
+                    number:number,
+                    state:state
+                }
+            });
+          }else{
+            api.openWin({
+                name: 'orderdetail',
+                url: './orderdetail.html',
+                reload:true,
+                pageParam: {
+                    id: id,
+                    number:number
+                }
+            });
+          }
+
+        }else{
+          api.openWin({
+              name: 'orderdetail',
+              url: './orderdetail.html',
+              reload:true,
+              pageParam: {
+                  id: id,
+                  number:number
+              }
+          });
+        }
+      }
+    }
+  })
+  //订单状态
+  api.ajax({
+      url: useUrl.orderStates,
+      method: 'get',
+      data: {
+        values:{
+          token:localStorage.getItem('token')
+        }
+      }
+  },function(ret, err){
+
+      if (ret.code == 200) {
+        var arr = []
+        var all = {'status':'', 'name': '全部'}
+        arr.push(all)
+        for(var key in ret.data){
+          var obj = {}
+          obj = {'status':key, 'name': ret.data[key]}
+          arr.push(obj)
+        }
+        vue.navbars = arr;
+      } else {
+        vue.noData = true;
+        vue.remindTxt = '网络出了点小差错'
+      }
+  });
+
+
+  // 订单列表
+  function getOrderList(state){
+    // $('#loading').show()
+    vue.selected = '-1'
+    api.ajax({
+        url: useUrl.orderList,
+        method: 'get',
+        data: {
+            values: {
+                page: vue.page,
+                page_size:vue.page_size,
+                state:state,
+                search:vue.search,
+                token:localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+      $('#loading').hide()
+      $('#app').show();
+      vue.reject_reason = ''
+        if (ret.code == 200) {
+          if(ret.data.length){
+            vue.items = ret.data;
+            vue.item = state;
+            vue.noData = false;
+          }else{
+            vue.noData = true;
+            vue.remindTxt = '暂无数据'
+            $("#remindPopup").animate({display:'block'},1000,function(){
+              $(this).css('display','none')
+            })
+            vue.items = '';
+            vue.item = state;
+          }
+        } else {
+          vue.noData = true;
+          vue.remindTxt = ret.msg
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+          })
+        }
+    });
+  }
+  getOrderList(vue.navbar);
+
+  // 角色判断
+
+  api.ajax({
+      url: useUrl.adminRoles,
+      method: 'get',
+      data: {
+          values: {
+              token: localStorage.getItem('token')
+          }
+      }
+  },function(ret, err){
+      if (ret.code == 200) {
+        $.each(ret.data,function(i,res){
+          vue.operational = false
+          res == '2' && (vue.operational = true)
+          res == '3' && (vue.operational = true)
+          res == '4' && (vue.operational = true)
+        })
+      }
+  });
+}
+</script>
+</html>

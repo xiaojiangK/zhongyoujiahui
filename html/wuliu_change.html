@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+        .mui-input-group .mui-input-row {
+            height: auto;
+        }
+
+        .mui-input-row label {
+            font-size: .9rem;
+            line-height: 1.2rem;
+        }
+
+        .wen-seldownicon {
+            line-height: 2.6rem;
+        }
+
+        .wen-disabled {
+            height: 3.8rem !important;
+            background: #ddd !important;
+        }
+        .wen-search{
+          background: #fff!important;
+        }
+        .wen-list-right-info{
+          text-align: right;
+          width: 65%;
+          padding: .6rem 1rem;
+          font-size: 1rem;
+          line-height: 1.6rem;
+        }
+        .mui-input-group{
+          background: none;
+        }
+        .mui-input-group .mui-input-row{
+          background: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="mui-bar mui-bar-nav">
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='wuliu.html'></a>
+        <h1 class="mui-title">申请变更</h1>
+    </header>
+    <div class="mui-content">
+        <form class="mui-input-group">
+
+            <div class="mui-input-row">
+                <label>订单编号：</label>
+                <div class="mui-input-clear mui-input wen-list-right-info wen-disabled">4654165416</div>
+            </div>
+            <div class="mui-input-row">
+                <label>运费支付方：</label>
+                <select class="wen-sel" name="">
+                  <option value="">订货方</option>
+                  <option value="">中油佳汇</option>
+                  <option value="">双方</option>
+                </select>
+                <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+            </div>
+            <div class="mui-input-row">
+                <label>物流公司：</label>
+                <div class="mui-input-clear mui-input wen-list-right-info wen-disabled">4654165416</div>
+            </div>
+            <div class="mui-input-row">
+                <label>运费（元）：</label>
+                <div class="mui-input-clear mui-input wen-list-right-info wen-disabled">100</div>
+            </div>
+            <div class="mui-input-row">
+                <label>运费明细：</label>
+                <div class="mui-input-clear mui-input wen-list-right-info wen-disabled">100</div>
+            </div>
+
+        </form>
+        <div class="mui-content-padded">
+            <button class="mui-btn mui-btn-block mui-btn-primary" onclick="submit()">提交</button>
+        </div>
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/datePicker.js"></script>
+<script type="text/javascript" src="../script/LArea.js"></script>
+<script type="text/javascript" src="../script/LAreaData2.js"></script>
+<script type="text/javascript">
+    // apiready = function(){
+    //
+    //       var header = $api.dom('header');
+    //       $api.fixStatusBar(header);
+    //
+    //
+    // };
+
+    function submit() {
+      // 订单物流变更
+        api.ajax({
+            url: useUrl.orderLogisticsChange,
+            method: 'post',
+            data: {
+                values: {
+                    order_id: '',
+                    logistics_company:'',
+                    freight:'',
+                    freight_details:'',
+                    freight_payer:'',
+                    freight_zhongyou:'',
+                    token:''
+                }
+            }
+        },function(ret, err){
+            if (ret) {
+                alert( JSON.stringify( ret ) );
+            } else {
+                alert( JSON.stringify( err ) );
+            }
+        });
+
+        window.location.href = 'home.html'
+    }
+</script>
+
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/home.css">
+    <style media="screen">
+      .mui-select:before{
+        top:10px;
+        right:0px;
+      }
+      .mui-btn {
+        padding: .2rem .4rem;
+        font-size: .8rem;
+      }
+
+    </style>
+</head>
+
+<body>
+    <header class="mui-bar mui-bar-nav" style="padding-right: 15px;" id='header'>
+        <h1 class="mui-title">项目列表</h1>
+        <a class="mui-icon mui-icon-plusempty wen-title-right" href='addproject.html' id='addBtn'></a>
+    </header>
+    <div class="mui-content wen-fixcontent" id='app' hidden>
+        <div class="wen-selbox">
+            <span class='mui-select' style="width:26%;display:inline-block;">
+              <select name="sel" class="wen-sel" v-model='searchKey' style="width:100%;">
+                <option v-for='item in selVal' :value='item.state'>{{item.name}}</option>
+              </select>
+            </span>
+            <input type="text" placeholder="搜索项目名称、编号、客户、地址" style='line-height:normal;width:58%;font-size:.8rem;margin:0;' v-model='search'>
+            <div class="wen-searchbtn mui-icon mui-icon-search" @touchend='searchProjectList' style='width:15%;'></div>
+        </div>
+
+        <ul class="mui-table-view" style="margin-top:1rem;background: none;">
+            <li class="mui-table-view-cell home-item" v-for='(item,index) in noSaveProjectList'>
+                <a class="wen-todetail" @click.stop='gotoDetail(index,"aa")'></a>
+                <div class="list-item-header">
+                    <div class="list-item-header-txt"><span class="special-txt" style="color:red;">待提交</span></div>
+                </div>
+                <div class="homne-list">项目名称：<span class='main-txt'>{{ item.name }}</span><span style='color:blue;font-size:.8rem;' v-if='item.schedule_name'>({{item.schedule_name}})</span></div>
+
+                <div class="homne-list">项目所属地：<span class='main-txt'>{{ item.province_name }}{{ item.city_name }}{{ item.area_name }}</span></div>
+                <div class="list-time">{{ item.update_time }}</div>
+          </li>
+        </ul>
+        <ul class="mui-table-view" style="background: none;">
+            <li class="mui-table-view-cell home-item" v-for='item in items'>
+                <a class="wen-todetail" @click.stop='gotoDetail(item.id,item.state)'></a>
+                <div class="list-item-header">
+                    <div class="list-item-header-txt">项目号：<span class='main-txt'>{{ item.number }}</span><span class="special-txt" v-bind:style="item.state == -1 || item.state == -4 ? 'color:red;' : ''">{{ item.is_my_audit && item.state_name == '审核中' ? '待审核' : item.state_name  }}</span></div>
+                </div>
+
+                <div class="homne-list">项目名称：<span class='main-txt'>{{ item.name }}</span><span style='color:blue;font-size:.8rem;' v-if='item.schedule_name'>({{item.schedule_name}})</span></div>
+
+                <div class="homne-list">项目所属地：<span class='main-txt'>{{ item.province }}{{ item.city }}{{ item.area }}</span></div>
+                <div class="list-time">{{ item.update_time }}</div>
+                <div style="float:right;margin-top:-3.5rem;">
+                  <div class="selDiv" v-if='item.state_name == "冻结" && operational '>
+                    <select class="selOptions" v-model="selected"  @click.stop @change="applyUnfreeze(item.id)">
+                      <option value="-1">请选择</option>
+                      <option v-for="option in options" :value="option.value">
+                          {{ option.text }}
+                      </option>
+                    </select>
+                    <span class="mui-icon mui-icon-arrowdown wen-seldownicon" style="right:0"></span>
+                  </div>
+                  <button type="button" class="mui-btn mui-btn-primary"  @click.stop="addOrder(item.id,item.name,item.user_name,item.province + item.city + item.area,item.province_id,item.city_id,item.area_id)" v-if='item.state_name == "通过" && operational'>{{item.state_name == '通过' ?'下单':''}}</button>
+                  <button type="button" class="mui-btn" @click.stop="cancelProject(item.id,'撤销')" v-if='item.state_name == "审核中" && !item.is_my_audit && !item.previous_audit && operational'>撤回</button>
+                  <!-- 待审核 -->
+                  <button type="button" class="mui-btn" @click.stop="cancelProject(item.id,'通过')"  v-if='item.is_my_audit && !item.previous_audit && item.state_name == "审核中"'>通过</button>
+                  <button type="button" class="mui-btn" @click.stop="cancelProject(item.id,'驳回')"  v-if='item.is_my_audit && !item.previous_audit && item.state_name == "审核中"'>驳回</button>
+                  <button type="button" class="mui-btn" @click="cancelAudit(item.id)"  v-if='item.state_name == "审核中" && item.previous_audit'>撤销审核</button>
+                  <!-- 解冻审核 -->
+                  <button type="button" class="mui-btn" @click.stop="cancelProject(item.id,'解冻审核通过')"  v-if='item.state == 2 && item.is_my_audit'>通过</button>
+                  <button type="button" class="mui-btn" @click.stop="cancelProject(item.id,'解冻审核驳回')"  v-if='item.state == 2 && item.is_my_audit'>驳回</button>
+
+                </div>
+            </li>
+        </ul>
+        <div class="get-more" @click='moreListFunc'>{{moredatas}}</div>
+        <!-- 提醒 -->
+        <div style="text-align:center;margin-top:50%;translate:transform(-50%)" v-if='noData'>{{remindTxt}}</div>
+        <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+          <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+        </div>
+        <div class="cancelBox" hidden id='cancelBox'>
+          <div class="dialog" @touchend='closeModel'></div>
+          <div class="cancelModel">
+            <div class="cancelTitle" style="border-bottom:none;" id='cancelTitle' :style="rejected ? 'padding:1rem 0 ;' : 'padding:2rem 0 ;'"></div>
+            <textarea name="A" cols="10" rows="2" placeholder="20字以内" maxlength='20' style="margin:0 10% 1rem;width:80%;line-height:normal;border:none;border-bottom:1px solid #ddd;" v-if='rejected' v-model='reject_reason'></textarea>
+            <div class="modelBtns">
+              <div class="cancelBtn" @touchend='closeModel'>取消</div>
+              <div class="confirmBtn" @touchend='cancelOrderFunc'>确定</div>
+            </div>
+          </div>
+        </div>
+
+    </div>
+
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+
+    <div class="wen-area">
+
+    </div>
+
+    <footer class="mui-bar mui-bar-tab " id="footer">
+        <a class="mui-tab-item mui-active " id="a1" tapmode onclick="randomSwitchBth(this,'项目',0)">
+            <span class="mui-icon mui-icon-home"></span>
+            <span class="mui-tab-label">项目</span>
+        </a>
+        <a class="mui-tab-item" id="a2" tapmode onclick="randomSwitchBth(this,'订单',1)">
+            <span class="mui-icon mui-icon-email">
+            </span>
+            <span class="mui-tab-label">订单</span>
+        </a>
+        <a class="mui-tab-item" id="a3" tapmode onclick="randomSwitchBth(this,'个人中心',2)">
+            <span class="mui-icon mui-icon-person"></span>
+            <span class="mui-tab-label">个人中心</span>
+        </a>
+    </footer>
+
+</body>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+function randomSwitchBth(obj, name, index) {
+    var footerAct = $api.dom(footer, '.mui-tab-item.mui-active');
+    $api.removeCls(footerAct, 'mui-active');
+    $api.addCls(obj, 'mui-active');
+
+    if (index == 0) {
+        return false;
+    } else if (index == 1) {
+        window.location.href = 'order.html'
+    } else if (index == 2) {
+        window.location.href = 'my.html'
+    }
+}
+
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#app').css('margin-top',headerH)
+   $('.wen-selbox').css('top',headerH)
+   if(localStorage.getItem('noSaveProjectList')){
+     var noSaveProjectList = JSON.parse(localStorage.getItem('noSaveProjectList'))
+   }
+
+    var vue = new Vue({
+        el: '#app',
+        data: {
+            remindTxt:'',
+            noData:false,
+            searchKey:'',
+            items: [],
+            selVal: [],
+            page: 1,
+            page_size: 10,
+            noSaveProjectList:noSaveProjectList,
+            options:[
+              {value:0,text:'解冻'},
+              {value:1,text:'转让'}
+            ],
+            selected:-1,
+            $id:'',
+            moredatas:'加载更多',
+            search:'',
+            rejected:false, // 驳回
+            modelTitle:'', // 弹窗标题
+            reject_reason:'',
+            operational:false //可以下单/提交
+        },
+        methods:{
+          closeModel(e){
+            e.preventDefault();
+            $('#cancelBox').hide()
+          },
+          cancelAudit(id){//撤销审核
+            api.ajax({
+                url: useUrl.projectRevokeAudit,
+                method: 'post',
+                data: {
+                    values: {
+                        id: id,
+                        token:localStorage.getItem('token')
+                    }
+                }
+            },function(ret, err){
+                getProjectList(vue.searchKey);
+            });
+          },
+          cancelOrderFunc(e){
+            e.preventDefault();
+            //撤销项目
+            if(vue.modelTitle == '撤销'){
+              //取消项目
+              api.ajax({
+                  url: useUrl.projectDelete,
+                  method: 'post',
+                  data: {
+                      values: {
+                          id: vue.$id,
+                          token:localStorage.getItem('token')
+                      }
+                  }
+              },function(ret, err){
+                $('#cancelBox').hide()
+                  getProjectList(vue.searchKey);
+              });
+            }else if(vue.modelTitle == '通过'){
+              api.ajax({
+                  url: useUrl.projectAudit,
+                  method: 'post',
+                  data: {
+                      values: {
+                          id: vue.$id,
+                          type:0,
+                          token:localStorage.getItem('token'),
+                          reject_reason:' '
+                      }
+                  }
+              },function(ret, err){
+                $('#cancelBox').hide()
+                  getProjectList(vue.searchKey);
+              });
+            }else if(vue.modelTitle == '驳回'){
+              if(vue.reject_reason){
+                api.ajax({
+                    url: useUrl.projectAudit,
+                    method: 'post',
+                    data: {
+                        values: {
+                            id: vue.$id,
+                            type:1,
+                            token:localStorage.getItem('token'),
+                            reject_reason:vue.reject_reason
+                        }
+                    }
+                },function(ret, err){
+                  $('#cancelBox').hide()
+                    getProjectList(vue.searchKey);
+                });
+              }else{
+                api.toast({
+                    msg: '请输入驳回原因',
+                    duration: 2000,
+                    location: 'bottom'
+                });
+              }
+
+            }else if(vue.modelTitle == '解冻审核驳回'){
+              //解冻审核驳回
+              api.ajax({
+                  url: useUrl.projectUnfreezeaudit,
+                  method: 'post',
+                  data: {
+                      values: {
+                          id: vue.$id,
+                          type:1,
+                          token:localStorage.getItem('token'),
+                          reject_reason:vue.reject_reason
+                      }
+                  }
+              },function(ret, err){
+                  $('#cancelBox').hide()
+                  getProjectList(vue.searchKey);
+              });
+            }else if(vue.modelTitle == '解冻审核通过'){
+              //解冻审核通过
+              api.ajax({
+                  url: useUrl.projectUnfreezeaudit,
+                  method: 'post',
+                  data: {
+                      values: {
+                          id: vue.$id,
+                          type:0,
+                          token:localStorage.getItem('token'),
+                          reject_reason:' '
+                      }
+                  }
+              },function(ret, err){
+                $('#cancelBox').hide()
+                  getProjectList(vue.searchKey);
+              });
+            }else{
+              return false;
+            }
+
+          },
+          cancelProject(id,title){
+            $('#cancelBox').show()
+            if(title == '驳回'){
+              $('#cancelTitle').html('请输入驳回理由')
+              vue.rejected = true
+            }else if(title == '撤销'){
+              vue.rejected = false
+              $('#cancelTitle').html('确认'+title+'吗？')
+            }else if(title == '通过'){
+              vue.rejected = false
+              $('#cancelTitle').html('确认'+title+'吗？')
+            }else if(title == '解冻审核驳回'){
+              $('#cancelTitle').html('请输入驳回理由')
+              vue.rejected = true
+            }else if(title == '解冻审核通过'){
+              vue.rejected = false
+              $('#cancelTitle').html('确认'+title+'吗？')
+            }
+            vue.modelTitle = title
+            vue.$id = id
+          },
+          searchProjectList(e){
+            e.preventDefault()
+            vue.noData = false;
+            vue.items = '';
+            vue.page = 1;
+            getProjectList(this.searchKey);
+          },
+          applyUnfreeze(id) {
+            if(vue.selected == 0){
+              //申请项目解冻
+                api.ajax({
+                    url: useUrl.projectUnfreeze,
+                    method: 'post',
+                    data: {
+                        values: {
+                            id: id,
+                            token:localStorage.getItem('token')
+                        }
+                    }
+                },function(ret, err){
+                    if (ret.code == 200) {
+                      getProjectList(vue.searchKey);
+                      vue.noData = true;
+                      vue.remindTxt = ret.msg
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                      })
+
+                    } else {
+                      vue.noData = true;
+                      vue.remindTxt = ret.msg
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                      })
+                    }
+                });
+            }else if(vue.selected == 1){
+              //申请项目解冻
+                api.ajax({
+                    url: useUrl.projectTransfer,
+                    method: 'post',
+                    data: {
+                        values: {
+                            id: id,
+                            token:localStorage.getItem('token')
+                        }
+                    }
+                },function(ret, err){
+                    if (ret.code == 200) {
+                      getProjectList(vue.searchKey);
+                      vue.noData = true;
+                      vue.remindTxt = ret.msg
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                      })
+                    } else {
+                      vue.noData = true;
+                      vue.remindTxt = ret.msg
+                      $("#remindPopup").animate({display:'block'},1000,function(){
+                        $(this).css('display','none')
+                      })
+                    }
+                });
+            }else{
+
+            }
+
+         },
+         // 下单
+         addOrder(id,name,userName,projectArea,province_id,city_id,area_id){
+           api.openWin({
+               name: 'addorder',
+               url: './addorder.html',
+               pageParam: {
+                   project_id: id,
+                   project_name: name,
+                   user_name: userName,
+                   project_area: projectArea,
+                   province_id:province_id,
+                   city_id:city_id,
+                   area_id:area_id
+               }
+           });
+         },
+         gotoDetail(str,state){
+           if(state == -1 || state == -4 || state == 'aa'){
+             if(vue.operational){
+               api.openWin({
+                   name: 'projectEdit',
+                   url: './projectEdit.html',
+                   pageParam: {
+                       id: str,
+                       state:state
+                   }
+               });
+             }else{
+               api.openWin({
+                   name: 'oneprojectDetail',
+                   url: './oneprojectDetail.html',
+                   pageParam: {
+                       id: str
+                   }
+               });
+             }
+
+           }else{
+             api.openWin({
+                 name: 'oneprojectDetail',
+                 url: './oneprojectDetail.html',
+                 pageParam: {
+                     id: str
+                 }
+             });
+           }
+
+         },
+         moreListFunc(){
+           api.ajax({
+               url: useUrl.projectList,
+               method: 'get',
+               data: {
+                   values: {
+                       page: ++vue.page,
+                       page_size: vue.page_size,
+                       state:vue.searchKey,
+                       search:vue.search,
+                       token: localStorage.getItem('token')
+                   }
+               }
+           }, function(ret, err) {
+              if(ret.data.length == 0){
+                vue.moredatas = '没有数据'
+              }
+               var arr = []
+               if(vue.items.length){
+                 arr  = vue.items
+               }
+               if (ret.code == 200) {
+                 if(ret.data.length){
+                   var obj = {}
+                   for(var i = 0; i < ret.data.length; i ++){
+                     obj = ret.data[i]
+                     arr.push(obj);
+                   }
+                   vue.items = arr;
+                 }else{
+
+                 }
+               }
+           });
+         }
+        }
+    })
+
+    // 项目列表
+    function getProjectList(state){
+      api.ajax({
+          url: useUrl.projectList,
+          method: 'get',
+          data: {
+              values: {
+                  page: vue.page,
+                  page_size: vue.page_size,
+                  state:state,
+                  search:vue.search,
+                  token: localStorage.getItem('token')
+              }
+          }
+      }, function(ret, err) {
+          $('#loading').hide()
+          $('#app').show();
+          vue.reject_reason = ''
+          if (ret.code == 200) {
+            if(ret.data.length){
+              vue.items = ret.data;
+              vue.searchKey = state;
+              vue.noData = false;
+            }else{
+              vue.noData = true;
+              vue.remindTxt = '暂无数据'
+              $("#remindPopup").animate({display:'block'},1000,function(){
+                $(this).css('display','none')
+              })
+              vue.items = '';
+              vue.searchKey = state;
+            }
+
+          } else {
+            vue.noData = true;
+            vue.remindTxt = ret.msg
+            $("#remindPopup").animate({display:'block'},1000,function(){
+              $(this).css('display','none')
+            })
+          }
+      });
+    }
+    getProjectList(vue.searchKey);
+
+    // 项目状态列表
+    api.ajax({
+        url: useUrl.projectStates,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          var arr = []
+          var all = {'state':'', 'name': '全部'}
+          arr.push(all)
+          for(var key in ret.data){
+            var obj = {}
+            obj = {'state':key, 'name': ret.data[key]}
+            arr.push(obj)
+          }
+          vue.selVal = arr;
+        } else {
+          vue.noData = true;
+          vue.remindTxt = ret.msg
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+          })
+        }
+    });
+
+    // 角色判断
+
+    api.ajax({
+        url: useUrl.adminRoles,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          $.each(ret.data,function(i,res){
+            vue.operational = false
+            res == '2' && (vue.operational = true)
+            res == '3' && (vue.operational = true)
+            res == '4' && (vue.operational = true)
+            if(vue.operational) {
+              $('#addBtn').show()
+            }else{
+              $('#addBtn').hide()
+            }
+          })
+        }
+    });
+
+    api.addEventListener({
+        name: 'keyback'
+    }, function(ret, err){
+      api.confirm({
+          title: '提示',
+          msg: '是否退出应用',
+          buttons: ['确定', '取消']
+      }, function(ret, err){
+          if(ret.buttonIndex == 1){
+               api.closeWidget();
+          }
+      });
+    });
+
+}
+</script>
+
+</html>

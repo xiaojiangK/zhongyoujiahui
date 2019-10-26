@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/home.css">
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" style="padding-right: 15px;">
+  			<h1 class="mui-title">保证金列表</h1>
+        <a class="mui-icon mui-icon-plusempty wen-title-right" href='contract_project_money.html'></a>
+  		</header>
+  		<div class="mui-content wen-fixcontent">
+        <div class="wen-selbox">
+          <select name="sel" id="topsel" class="wen-sel">
+            <option value="0">请选择</option>
+            <option value="1">审核通过</option>
+            <option value="3">设计成功</option>
+            <option value="4">设计成功</option>
+            <option value="5">设计成功</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+          <button type="button" class="wen-searchbtn">搜索</button>
+        </div>
+
+  			<ul class="mui-table-view" style="background: none;">
+  				 <li class="mui-table-view-cell home-item">
+            <a href="" class="wen-todetail"></a>
+  				 	<div class="list-item-header">
+  				 		<div class="list-item-header-txt">保证金编号：<span class='main-txt'>7978079089089</span><span class="special-txt">设计成功</span></div>
+  				 	</div>
+
+  				 	<div class=""><span class='main-txt'>保证金</span></div>
+
+  				 	<div class="">约定退还时间：<span class='main-txt'>2018-09-27 11:20</span></div>
+  				 	<button type="button" class="mui-btn mui-btn-primary right-btn" onclick="dosomething()">申请退还</button>
+  				 </li>
+           <li class="mui-table-view-cell home-item">
+            <a href="" class="wen-todetail"></a>
+           <div class="list-item-header">
+             <div class="list-item-header-txt">保证金编号：<span class='main-txt'>7978079089089</span><span class="special-txt">设计成功</span></div>
+           </div>
+
+           <div class=""><span class='main-txt'>保证金</span></div>
+
+           <div class="">约定退还时间：<span class='main-txt'>2018-09-27 11:20</span></div>
+           <button type="button" class="mui-btn mui-btn-primary right-btn" onclick="dosomething()">申请退还</button>
+          </li>
+
+  			</ul>
+  		</div>
+
+      <div class="wen-area">
+
+			</div>
+
+  		<footer class="mui-bar mui-bar-tab " id="footer">
+  			<a class="mui-tab-item mui-active " id="a1" tapmode onclick="randomSwitchBth(this,'项目',0)" >
+  				<span class="mui-icon mui-icon-home"></span>
+  				<span class="mui-tab-label">项目</span>
+  			</a>
+  			<a class="mui-tab-item" id="a2" tapmode onclick="randomSwitchBth(this,'订单',1)" >
+  				<span class="mui-icon mui-icon-email">
+  				<span class="mui-badge">9</span></span>
+  				<span class="mui-tab-label">订单</span>
+  			</a>
+  			<a class="mui-tab-item" id="a3" tapmode onclick="randomSwitchBth(this,'个人中心',2)" >
+  				<span class="mui-icon mui-icon-person"></span>
+  				<span class="mui-tab-label">个人中心</span>
+  			</a>
+  		</footer>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+    // apiready = function(){
+    //
+    //       var header = $api.dom('header');
+    //       $api.fixStatusBar(header);
+    //
+    //       var footer = $api.byId('footer');
+    //       $api.fixTabBar(footer);
+    //
+    // };
+
+    function randomSwitchBth(obj, name, index) {
+        var footerAct = $api.dom(footer, '.mui-tab-item.mui-active');
+        $api.removeCls(footerAct, 'mui-active');
+        $api.addCls(obj, 'mui-active');
+
+        if (index == 0) {
+            return false;
+        } else if (index == 1) {
+            window.location.href = 'order.html'
+        } else if (index == 2) {
+            window.location.href = 'my.html'
+        }
+
+    }
+
+    function dosomething(){
+      window.location.href = 'agent_money.html'
+    }
+
+    // 保证金列表
+    function getDepositList(){
+      api.ajax({
+          url: useUrl.depositList,
+          method: 'post',
+          data: {
+              values: {
+                  page: '',
+                  page_size:'',
+                  state:'',
+                  token:''
+              }
+          }
+      },function(ret, err){
+          if (ret) {
+              alert( JSON.stringify( ret ) );
+          } else {
+              alert( JSON.stringify( err ) );
+          }
+      });
+
+    }
+
+
+</script>
+</html>

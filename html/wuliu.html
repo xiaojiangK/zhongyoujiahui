@@ -1,0 +1,77 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/style.css" rel="stylesheet" />
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <style media="screen">
+      .main-txt {
+          color: #000000;
+          font-weight: bold;
+      }
+
+      .wen-ordertype{
+        color: #fff;
+        background: orange;
+        font-size: .8rem;
+        padding: .3rem .5rem;
+        border-radius: 3px;
+        vertical-align: middle;
+        margin-right: .5rem;
+      }
+      .wen-li{
+        display: flex;
+      }
+      .wen-li a.wen-righticon{
+        width: 100%;
+        margin:-11px 0;
+        padding: .5rem 0;
+      }
+      .wen-item-ctn{
+        flex:1;
+        vertical-align: middle;
+        display: inline-block;
+        font-size: .9rem;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='my.html'></a>
+			<h1 class="mui-title">物流信息列表</h1>
+		</header>
+  <div class="mui-content">
+
+      <ul class="mui-table-view" style="margin-top:0rem;">
+          <li class="mui-table-view-cell wen-li">
+            <a href="wuliu_change.html" class="mui-navigate-right wen-righticon">
+              <span class='wen-ordertype'>待审核</span>
+              <div class="wen-item-ctn">
+                <div class="">订单号：<span class='main-txt'>7978079089089</span></div>
+                <div class="list-time">2018-09-27 11:20</div>
+              </div>
+            </a>
+          </li>
+
+      </ul>
+  </div>
+
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript">
+  // apiready = function(){
+  //
+  //       var header = $api.dom('header');
+  //       $api.fixStatusBar(header);
+  //
+  //       var footer = $api.byId('footer');
+  //       $api.fixTabBar(footer);
+  //
+  // };
+
+
+</script>
+</html>

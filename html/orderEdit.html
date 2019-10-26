@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+        position: absolute;
+        right: 1rem;
+        top: 0;
+        font-size: 15px;
+        color: #bbb;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-btn-two{
+        width: 45%;
+        display: inline-block;
+        margin: 0 2%;
+      }
+      .wen-disabled{
+        height: 3.8rem !important;
+        background: #ddd !important;
+      }
+      .get-goods-address{
+        display: inline-flex;
+        width: 65%;
+        height: 40px;
+      }
+      .get-goods-address-list{
+        width:30%;
+        margin-right:3%;
+        position: relative;
+      }
+      .wen-list-right-info{
+        text-align: right;
+        width: 65%;
+        padding: .6rem 1rem;
+        font-size: 1rem;
+        line-height: 1.6rem;
+      }
+      .wen-project-info{
+        width: 65%;
+        vertical-align: middle;
+        line-height: 2.6rem;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" onclick="api.closeWin()"></a>
+			<h1 class="mui-title">修改订单</h1>
+		</header>
+		<div class="mui-content" id='app' hidden>
+      <form class="mui-input-group">
+        <div class="mui-input-row" v-if='state == -1'>
+          <label>驳回人：</label>
+          <div class="wen-project-info" style="color:red;">{{auditor_name}}</div>
+        </div>
+        <div class="mui-input-row" v-if='state == -1'>
+          <label>驳回原因：</label>
+          <div class="wen-project-info" style="color:red;">{{reject_reason}}</div>
+        </div>
+        <div class="mui-input-row">
+          <label>*项目名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目名称" v-model='project_name' disabled>
+        </div>
+        <div class="mui-input-row">
+          <label>*客户名称：</label>
+          <input type="text" class="mui-input-clear mui-input" v-model='customer_name' disabled>
+        </div>
+        <div class="mui-input-row">
+          <label>欠款额度（元）：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" disabled :value='overdraft'>
+        </div>
+        <div class="mui-input-row">
+          <label>可用额度（元）：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" disabled :value='remainder_amount'>
+        </div>
+        <div class="mui-input-row">
+          <label>*订货日期：</label>
+          <input type="text" id='wen-date1' class="mui-input-clear mui-input" placeholder="请选择订货日期" readonly v-model='order_date'>
+        </div>
+        <!-- <div class="mui-input-row">
+          <label>预计付款日期：</label>
+          <input type="text" id='wen-date2' class="mui-input-clear mui-input" placeholder="请选择预计付款日期" readonly v-model='committed_payment_time'>
+        </div> -->
+        <div class="mui-input-row">
+          <label>要求发货日期：</label>
+          <input type="text" id='wen-date3' class="mui-input-clear mui-input" placeholder="请选择要求发货日期" readonly v-model='required_delivery_date'>
+        </div>
+        <div class="mui-input-row">
+          <label>*付款时间：</label>
+          <input type="text" id='wen-date4' class="mui-input-clear mui-input" placeholder="请选择预计回款日期" readonly v-model='committed_remittance_time'>
+        </div>
+        <div class="mui-input-row">
+          <label>*付款方式：</label>
+          <select class="wen-sel" name="payment_method" v-model='payment_method'>
+            <option v-for='(item,index) in payment_method_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+        </div>
+        <div class="mui-input-row">
+          <label>*交付方式：</label>
+          <select class="wen-sel" name="delivery_mode" v-model='delivery_mode'>
+            <option v-for='(item,index) in delivery_mode_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+        </div>
+        <div class="mui-input-row">
+          <label>备注：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="备注" v-model='note'>
+        </div>
+        <div class="mui-input-row">
+          <label>检测报告合格证：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写检测报告合格证" v-model='inspection_report_certificate'>
+        </div>
+        <div class="mui-input-row">
+          <label>*运费支付方：</label>
+          <select class="wen-sel" name="freight_payer" v-model='freight_payer'>
+            <option v-for='(item,index) in freight_mode_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+        </div>
+        <div class="mui-input-row">
+          <label>币别：</label>
+          <select class="wen-sel" name="currency" v-model='currency'>
+            <option v-for='item in currency_options' :value="item.id">{{item.name}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+        </div>
+        <div class="mui-input-row">
+          <label>*详细地址：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写详细地址" v-model='address'>
+        </div>
+        <div class="mui-input-row">
+          <label>*收货地址：</label>
+          <input type="text" class="mui-input-clear mui-input"  v-model='project_area' disabled>
+        </div>
+        <div class="mui-input-row">
+          <label>现场收货人：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写现场收货人" v-model='consignee_name'>
+        </div>
+        <div class="mui-input-row">
+          <label>现场收货人电话：</label>
+          <input type='number' class="mui-input-clear mui-input" placeholder="请填写现场收货人电话" v-model='consignee_phone'>
+        </div>
+        <div class="mui-input-row">
+          <label>*合计金额（元）：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" disabled :value='total_amount'>
+        </div>
+      </form>
+      <div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary" @click="addProduct">添加产品</button>
+      </div>
+      <!-- 提醒 -->
+      <div style="text-align:center;margin-top:50%;translate:transform(-50%)" v-if='noData'>{{remindTxt}}</div>
+		</div>
+
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+
+</body>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/datePicker.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+
+<script type="text/javascript">
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#app').css('margin-top','2rem')
+
+  var pageParam = api.pageParam; // 页面传参
+  var datas = '';
+
+  // 订单详情
+  api.ajax({
+      url: useUrl.orderDetail,
+      method: 'get',
+      data: {
+          values: {
+              id: pageParam.id,
+              token:localStorage.getItem('token')
+          }
+      }
+  },function(ret, err){
+    $('#loading').hide();
+    $('#app').show();
+      if (ret.code == 200) {
+        datas = ret.data;
+        var vue = new Vue({
+          el:'#app',
+          data:{
+            noData:false,
+            state:pageParam.state,
+            remindTxt:'',
+            auditor_name:datas.auditor_name,
+            reject_reason:datas.reject_reason,
+            project_name : datas.project_name ,
+            customer_name : datas.user_name,
+            subjects_options:[],
+            currency:'PRE001',
+            currency_options:[
+              {id:'PRE001',name:'人民币'},
+              {id:'PRE007',name:'美元'}
+            ],
+            payment_method:0,
+            payment_method_options:['授信支付','合同支付','现金提货','其他'],
+            note:datas.note,
+            project_area:datas.province + ',' + datas.city + ',' + datas.area,
+            address:datas.address,
+            consignee_name:datas.consignee_name,
+            consignee_phone:datas.consignee_phone,
+            order_date:datas.order_date,
+            // committed_payment_time:datas.committed_payment_time,
+            required_delivery_date:datas.required_delivery_date,
+            committed_remittance_time:datas.committed_remittance_time,
+            delivery_mode:datas.delivery_mode,
+            delivery_mode_options:['客户自提','当地物流点自提','物流送货','海运'],
+            freight_payer:datas.freight_payer,
+            freight_mode_options:['订货方','供货方','共同支付'],
+            inspection_report_certificate:datas.inspection_report_certificate,
+            project_name:datas.project_name,
+            overdraft :'',
+            remainder_amount :'',
+            total_amount:datas.total_amount
+          },
+          methods:{
+
+            // 添加产品
+            addProduct(){
+              api.openWin({
+                  name: 'productlist',
+                  url: './productlist.html',
+                  reload:true,
+                  pageParam: {
+                    id: datas.id,
+                    project_id: datas.project_id,
+                    currency:this.currency,
+                    payment_method:this.payment_method,
+                    note:this.note,
+                    address:this.address,
+                    consignee_name:this.consignee_name,
+                    consignee_phone:this.consignee_phone,
+                    order_date:this.order_date,
+                    committed_payment_time:' ',
+                    required_delivery_date:this.required_delivery_date,
+                    committed_remittance_time:this.committed_remittance_time,
+                    delivery_mode:this.delivery_mode,
+                    freight_payer:this.freight_payer,
+                    inspection_report_certificate:this.inspection_report_certificate,
+                    products:datas.products
+                  }
+              });
+              api.closeWin()
+            }
+          }
+        })
+
+
+        //项目公司主体列表
+        api.ajax({
+            url: useUrl.projectSubjects,
+            method: 'get',
+            data: {
+                values: {
+                    token: localStorage.getItem('token')
+                }
+            }
+        },function(ret, err){
+            if (ret.code == 200) {
+              vue.subjects_options = ret.data;
+            }else{
+              vue.noData = true
+              vue.remindTxt = '网络出了点小差错'
+            }
+        });
+
+        //欠款金额
+        api.ajax({
+            url: useUrl.projectOverdraft,
+            method: 'get',
+            data: {
+                values: {
+                    token: localStorage.getItem('token')
+                }
+            }
+        },function(ret, err){
+            if (ret.code == 200) {
+              vue.overdraft = ret.data.overdraft;
+              vue.remainder_amount = ret.data.remainder_amount;
+            }
+        });
+
+
+        // 获取当前日期
+        var date = new Date();
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var time = year + '-' + month + '-' + day
+      // 年月日
+        var calendar1 = new datePicker();
+        calendar1.init({
+            'trigger': '#wen-date1', /*按钮选择器，用于触发弹出插件*/
+            'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+            'minDate':time,/*最小日期*/
+            'maxDate':'2100-12-31',/*最大日期*/
+            'onSubmit':function(){/*确认时触发事件*/
+                vue.order_date = calendar1.value;
+            },
+            'onClose':function(){/*取消时触发事件*/
+            }
+        });
+        // var calendar2 = new datePicker();
+        // calendar2.init({
+        //     'trigger': '#wen-date2', /*按钮选择器，用于触发弹出插件*/
+        //     'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+        //     'minDate':'2000-1-1',/*最小日期*/
+        //     'maxDate':'2100-12-31',/*最大日期*/
+        //     'onSubmit':function(){/*确认时触发事件*/
+        //         vue.committed_payment_time = calendar2.value;
+        //     },
+        //     'onClose':function(){/*取消时触发事件*/
+        //     }
+        // });
+        var calendar3 = new datePicker();
+        calendar3.init({
+            'trigger': '#wen-date3', /*按钮选择器，用于触发弹出插件*/
+            'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+            'minDate':time,/*最小日期*/
+            'maxDate':'2100-12-31',/*最大日期*/
+            'onSubmit':function(){/*确认时触发事件*/
+                vue.required_delivery_date = calendar3.value;
+            },
+            'onClose':function(){/*取消时触发事件*/
+            }
+        });
+        var calendar4 = new datePicker();
+        calendar4.init({
+            'trigger': '#wen-date4', /*按钮选择器，用于触发弹出插件*/
+            'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+            'minDate':time,/*最小日期*/
+            'maxDate':'2100-12-31',/*最大日期*/
+            'onSubmit':function(){/*确认时触发事件*/
+                vue.committed_remittance_time = calendar4.value;
+            },
+            'onClose':function(){/*取消时触发事件*/
+            }
+        });
+      }
+  });
+}
+</script>
+</html>

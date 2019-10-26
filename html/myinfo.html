@@ -1,0 +1,239 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .wen-item-lighttxt{
+        color:#666;
+      }
+      .wen-item-lighttxt .wen-item-deeptxt{
+        color:#333;
+        border:none;
+        margin:0;
+        padding:0;
+        width:55%;
+        float:right;
+        text-align: right;
+      }
+      .wen-item-lighttxt .wen-item-deeptxt.wen-item-ipt{
+        position: relative;
+        width:3rem;
+        height:3rem;
+        float: right;
+        border:1px solid #ddd;
+      }
+      .wen-item-img{
+        width:100%;
+        height:100%;
+      }
+      .wen-item-iptval{
+        position: absolute;
+        opacity: 0;
+        top:0;
+        width: 100%;
+        height:100%;
+        left: 0;
+      }
+    </style>
+</head>
+<body>
+
+    <header class="mui-bar mui-bar-nav" id='header'>
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='my.html'></a>
+        <h1 class="mui-title">个人资料</h1>
+      </header>
+		<div class="mui-content" id='app'>
+
+			<ul class="mui-table-view" style="margin-top: 1rem;">
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">账户：<div class='wen-item-deeptxt'>{{username}}</div></div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">用户名：<div class='wen-item-deeptxt'>{{name}}</div></div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">法人身份证号：<input type='text' class='wen-item-deeptxt' v-model='id_number' style="line-height:normal;" placeholder='法人身份证号'/></div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">公司营业执照编号：<input type='text' class='wen-item-deeptxt' v-model='business_license_number' style="line-height:normal;" placeholder='公司营业执照编号'/></div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">法人电话：<input type='text' class='wen-item-deeptxt' v-model='legal_person_phone' style="line-height:normal;" placeholder='法人电话'/></div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">公司营业执照：
+            <div class="wen-item-deeptxt wen-item-ipt" tapmode @click="showAction(0)">
+              <img class='wen-item-img' :src='business_license' v-if='business_license'/>
+            </div>
+
+          </div>
+				</li>
+        <li class="mui-table-view-cell">
+					<div class="wen-item-lighttxt">客户许可证：
+            <div class="wen-item-deeptxt wen-item-ipt" tapmode @click="showAction(1)">
+              <img class='wen-item-img' :src='customer_license' v-if='customer_license'/>
+            </div>
+          </div>
+				</li>
+			</ul>
+      <div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary" @click="saveInfo">保存</button>
+      </div>
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+		</div>
+
+</body>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+  apiready = function(){
+    var header = document.querySelector('#header');
+     $api.fixStatusBar(header);
+     var headerH = $api.offset(header).h
+     $('#app').css('margin-top','1rem')
+
+    var vue = new Vue({
+      el:'#app',
+      data:{
+          remindTxt:'',
+          username:'',
+          name:'',
+          id_number:' ',
+          business_license_number:' ',
+          legal_person_phone:' ',
+          customer_license:' ',
+          business_license:' '
+      },
+      methods:{
+        showAction(imgIndex){
+            api.actionSheet({
+                  title: '上传图片',
+                  cancelTitle: '取消',
+                  buttons: ['拍照','从手机相册选择']
+              }, function(ret, err) {
+                  if (ret) {
+                      vue.getPicture(ret.buttonIndex,imgIndex);
+                  }
+              });
+          },
+          getPicture(sourceType,imgIndex) {
+                if(sourceType==1){ // 拍照
+                    api.getPicture({
+                        sourceType: 'camera',
+                        encodingType: 'jpg',
+                        mediaValue: 'pic',
+                        allowEdit: false,
+                        destinationType: 'base64',
+                        quality: 90,
+                        saveToPhotoAlbum: true
+                    }, function(ret, err) {
+                        if (ret) {
+                          if(imgIndex == 0){
+                            vue.business_license = ret.base64Data
+                          }else{
+                            vue.customer_license = ret.base64Data
+                          }
+
+                        }else {
+                          api.toast({
+                              msg: '上传图片失败',
+                              duration: 2000,
+                              location: 'bottom'
+                          });
+
+                        }
+                    });
+                }
+                else if(sourceType==2){ // 从相机中选择
+                    api.getPicture({
+                            sourceType: 'library',
+                            encodingType: 'jpg',
+                            mediaValue: 'pic',
+                            destinationType: 'base64',
+                            quality: 50,
+                            targetWidth: 750,
+                            targetHeight: 750
+                        }, function(ret, err) {
+                            if (ret) {
+                              if(imgIndex == 0){
+                                vue.business_license = ret.base64Data
+                              }else{
+                                vue.customer_license = ret.base64Data
+                              }
+                            } else {
+                              api.toast({
+                                  msg: '上传图片失败',
+                                  duration: 2000,
+                                  location: 'bottom'
+                              });
+                            }
+                    });
+                }
+            },
+        saveInfo(){
+          // 修改用户信息
+          api.ajax({
+              url: useUrl.adminUpdate,
+              method: 'post',
+              data: {
+                  values: {
+                      token:localStorage.getItem('token'),
+                      id_number:vue.id_number,
+                      business_license_number:vue.business_license_number,
+                      legal_person_phone:vue.legal_person_phone,
+                      business_license:vue.business_license,
+                      customer_license:vue.customer_license
+                  }
+              }
+          },function(ret, err){
+            vue.remindTxt = ret.msg
+            $("#remindPopup").animate({display:'block'},1000,function(){
+              $(this).css('display','none')
+            })
+
+          });
+
+        }
+      }
+    })
+
+
+    // 用户信息
+      api.ajax({
+          url: useUrl.info,
+          method: 'get',
+          data: {
+              values: {
+                  token:localStorage.getItem('token')
+              }
+          }
+      },function(ret, err){
+          vue.username = ret.data.username
+          vue.name = ret.data.name
+          if(ret.data.user_info){
+            vue.id_number = ret.data.user_info.id_number
+            vue.business_license_number = ret.data.user_info.business_license_number
+            vue.legal_person_phone = ret.data.user_info.legal_person_phone
+            vue.customer_license = ret.data.user_info.customer_license
+              vue.business_license = ret.data.user_info.business_license
+          }
+
+      });
+  }
+
+
+
+
+
+</script>
+</html>

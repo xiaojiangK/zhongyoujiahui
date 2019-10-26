@@ -1,0 +1,244 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+        font-size: 15px;
+        color: #bbb;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-btn-two{
+        width: 45%;
+        display: inline-block;
+        margin: 0 2%;
+      }
+      .wen-disabled{
+        height: 3.8rem !important;
+        background: #ddd !important;
+      }
+      .wen-project-ipt{
+        opacity: 0;
+      }
+      .wen-project-img{
+        width: 3rem;
+        height: 3rem;
+        position: absolute;
+        left: 35%;
+        top: .5rem;
+      }
+      .wen-project-img img{
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+    <link rel="stylesheet" href="../css/datePicker.css"/>
+    <link rel="stylesheet" href="../css/LArea.css">
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='home.html'></a>
+			<h1 class="mui-title">代理保证金</h1>
+		</header>
+		<div class="mui-content" id='app'>
+			<form class="mui-input-group">
+        <div class="mui-input-row">
+          <label>客户名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写客户名称">
+        </div>
+        <div class="mui-input-row">
+					<label>业务员：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写业务员">
+				</div>
+        <div class="mui-input-row">
+					<label>*金额(元)：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写金额">
+				</div>
+        <div class="mui-input-row">
+					<label>*公司收款账号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写公司收款账号">
+				</div>
+        <div class="mui-input-row">
+					<label>*付款公司：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写付款公司">
+				</div>
+        <div class="mui-input-row">
+					<label>*其它信息：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写其它信息">
+				</div>
+        <div class="mui-input-row">
+					<label>业务员电话：</label>
+          <input type="number" class="mui-input-clear mui-input" placeholder="请填写业务员电话">
+				</div>
+        <div class="mui-input-row">
+          <label>*保证金返回时间：</label>
+          <input type="text" id='wen-date' class="mui-input-clear mui-input" placeholder="请选择日期" readonly>
+        </div>
+        <div class="mui-input-row">
+					<label>*收款流水号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写收款流水号">
+				</div>
+        <div class="mui-input-row">
+          <label>*付款截止时间：</label>
+          <input type="text" id='wen-overdate' class="mui-input-clear mui-input" placeholder="请选择付款截止日期" readonly>
+        </div>
+
+			</form>
+			<div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" onclick="saveData()">保存</button>
+				<button id='sendMail' class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" onclick="sumbitData()">提交</button>
+			</div>
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+		</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/datePicker.js"></script>
+<script type="text/javascript" src="../script/LArea.js"></script>
+<script type="text/javascript" src="../script/LAreaData2.js"></script>
+
+<script type="text/javascript">
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   $('#app').css('margin-top','2rem')
+
+   // 获取当前日期
+   var date = new Date();
+   var year = date.getFullYear();
+   var month = date.getMonth() + 1;
+   var day = date.getDate();
+   var time = year + '-' + month + '-' + day
+  var calendar = new LCalendar();
+  calendar.init({
+      'trigger': '#wen-date', /*按钮选择器，用于触发弹出插件*/
+      'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+      'minDate':time,/*最小日期*/
+      'maxDate':'2100-12-31'/*最大日期*/
+  });
+
+  var calendar = new LCalendar();
+  calendar.init({
+      'trigger': '#wen-overdate', /*按钮选择器，用于触发弹出插件*/
+      'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+      'minDate':time,/*最小日期*/
+      'maxDate':'2100-12-31'/*最大日期*/
+  });
+
+  var city = new LArea();
+  city.init({
+        'trigger': '#wen-city',
+        'valueTo': '#wen-city-value',
+        'keys': {
+            id: 'value',
+            name: 'text'
+        },
+        'type': 2,
+        'data': [provs_data, citys_data, dists_data]
+    });
+
+    var vue = new Vue ({
+      el:'#app',
+      data:{
+        datas:'',
+        details:''
+      },
+      methods:{
+
+      }
+    })
+
+    function saveData(){
+      alert('保存成功');
+      setTimeout(function(){
+        window.location.href = 'home.html'
+      },1000)
+    }
+
+    function sumbitData(){
+      window.location.href = 'home.html'
+    }
+
+    // 保证金详情
+    function getMoneyDetail(){
+      api.ajax({
+          url: userAll.depositInfo,
+          method: 'get',
+          data: {
+              values: {
+                  id: '',
+                  token:localStorage.getItem('token')
+              }
+          }
+      },function(ret, err){
+        if (ret.code == 200) {
+          vue.details = ret.data
+            // alert( JSON.stringify( ret ) );
+        } else {
+          vue.remindTxt = ret.msg
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+          })
+        }
+      });
+
+    }
+
+    // 项目保证金申请
+  function applyMoney(){
+    api.ajax({
+        url: useUrl.depositCreate,
+        method: 'post',
+        data: {
+            values: {
+               remindTxt:'',
+                margin_return_time: '',
+                payment_deadline:'',
+                money:'',
+                salesman:'',
+                account:'',
+                salesperson_phone:'',
+                other_info:'',
+                type:'',
+                token:localStorage.getItem('token'),
+                flow_number:''
+            }
+        }
+    },function(ret, err){
+      if (ret.code == 200) {
+        vue.datas = ret.data
+          // alert( JSON.stringify( ret ) );
+      } else {
+        vue.remindTxt = ret.msg
+        $("#remindPopup").animate({display:'block'},1000,function(){
+          $(this).css('display','none')
+        })
+      }
+    });
+
+  }
+}
+</script>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+        font-size: 15px;
+        color:#bbb;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-btn-two{
+        width: 45%;
+        display: inline-block;
+        margin: 0 2%;
+      }
+      .wen-disabled{
+        height: 3.8rem !important;
+        background: #ddd !important;
+      }
+      .wen-project-ipt{
+        opacity: 0;
+      }
+      .wen-project-img{
+        width: 3rem;
+        height: 3rem;
+        position: absolute;
+        left: 35%;
+        top: .5rem;
+      }
+      .wen-project-img img{
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+    </style>
+    <link rel="stylesheet" href="../css/datePicker.css"/>
+    <link rel="stylesheet" href="../css/LArea.css">
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav">
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='home.html'></a>
+			<h1 class="mui-title">材料合同详情</h1>
+		</header>
+		<div class="mui-content" id='#app'>
+			<form class="mui-input-group">
+        <div class="mui-input-row">
+          <label>*合同名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写合同名称">
+        </div>
+        <div class="mui-input-row">
+					<label>*项目名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目名称">
+				</div>
+        <div class="mui-input-row">
+					<label>*甲方：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写甲方">
+				</div>
+        <div class="mui-input-row">
+					<label>*业务经办人：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写业务经办人">
+				</div>
+        <div class="mui-input-row">
+					<label>项目总价：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" value="100">
+				</div>
+        <div class="mui-input-row">
+					<label>付款方式：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写付款方式">
+				</div>
+        <div class="mui-input-row">
+					<label>收货人员：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写收货人员">
+				</div>
+        <div class="mui-input-row">
+					<label>*其它信息：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写其它信息">
+				</div>
+        <div class="mui-input-row">
+					<label>*合同类型：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" value="工程合同">
+				</div>
+        <div class="mui-input-row">
+					<label>*合同编号：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" value="10454560">
+				</div>
+        <div class="mui-input-row">
+					<label>*存档编号：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写存档编号">
+				</div>
+        <div class="mui-input-row">
+					<label>所属大区：</label>
+          <select class="wen-sel" name="">
+            <option value="">华北</option>
+            <option value="">华东</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div>
+        <div class="mui-input-row">
+          <label>*经销区域：</label>
+          <input type="text" id='wen-city' class="mui-input-clear mui-input" placeholder="请选择经销区域" readonly>
+          <input type="hidden" id='wen-city-value' class="mui-input-clear mui-input">
+        </div>
+        <div class="mui-input-row">
+					<label>*质量指标：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写质量指标">
+				</div>
+        <div class="mui-input-row">
+					<label>商品添加：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" disabled>
+				</div>
+        <div class="mui-input-row" style="height:4rem;">
+					<label>*附件：</label>
+          <input type="file" class="mui-input-clear mui-input wen-project-ipt">
+          <div class="wen-project-img">
+            <img src="" alt="">
+          </div>
+				</div>
+
+			</form>
+			<div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" onclick="saveData()">保存</button>
+				<button id='sendMail' class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" onclick="sumbitData()">提交</button>
+			</div>
+		</div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/datePicker.js"></script>
+<script type="text/javascript" src="../script/LArea.js"></script>
+<script type="text/javascript" src="../script/LAreaData2.js"></script>
+<script type="text/javascript">
+apiready = function(){
+  var calendar = new LCalendar();
+  calendar.init({
+      'trigger': '#wen-date', /*按钮选择器，用于触发弹出插件*/
+      'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+      'minDate':'2018-01-01',/*最小日期*/
+      'maxDate':'2100-12-31'/*最大日期*/
+  });
+
+  var city = new LArea();
+  city.init({
+        'trigger': '#wen-city',
+        'valueTo': '#wen-city-value',
+        'keys': {
+            id: 'value',
+            name: 'text'
+        },
+        'type': 2,
+        'data': [provs_data, citys_data, dists_data]
+    });
+
+    function saveData(){
+      alert('保存成功');
+      setTimeout(function(){
+        window.location.href = 'home.html'
+      },1000)
+    }
+
+    function sumbitData(){
+      window.location.href = 'home.html'
+    }
+
+    // 合同创建
+    function createContract(){
+      api.ajax({
+          url: useUrl.contractCreate,
+          method: 'post',
+          data: {
+              values: {
+                  name: '',
+                  project_id:'',
+                  first_party:'',
+                  province_id:'',
+                  city_id:'',
+                  area_id:'',
+                  region:'',
+                  annex:'',
+                  number:'',
+                  archive_number:'',
+                  other_info:'',
+                  business_operator:'',
+                  type:'',
+                  token:'',
+                  project_total_price:'',
+                  payment_method:'',
+                  receiving_personnel:'',
+                  quality_index:''
+              }
+          }
+      },function(ret, err){
+          if (ret) {
+              alert( JSON.stringify( ret ) );
+          } else {
+              alert( JSON.stringify( err ) );
+          }
+      });
+
+    }
+}
+</script>
+</html>

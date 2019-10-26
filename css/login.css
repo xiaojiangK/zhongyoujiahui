@@ -1,0 +1,64 @@
+
+			.link-area {
+				display: block;
+				margin-top: 25px;
+				text-align: center;
+			}
+
+			.spliter {
+				color: #bbb;
+				padding: 0px 8px;
+			}
+
+			.oauth-area {
+				position: absolute;
+				bottom: 20px;
+				left: 0px;
+				text-align: center;
+				width: 100%;
+				padding: 0px;
+				margin: 0px;
+			}
+
+			.oauth-area .oauth-btn {
+				display: inline-block;
+				width: 50px;
+				height: 50px;
+				background-size: 30px 30px;
+				background-position: center center;
+				background-repeat: no-repeat;
+				margin: 0px 20px;
+				/*-webkit-filter: grayscale(100%); */
+				border: solid 1px #ddd;
+				border-radius: 25px;
+			}
+
+			.oauth-area .oauth-btn:active {
+				border: solid 1px #aaa;
+			}
+
+			.oauth-area .oauth-btn.disabled {
+				background-color: #ddd;
+			}
+			.mui-input-row label{
+				width: auto;
+				vertical-align: middle;
+				padding:7px 15px;
+				text-align: center;
+			}
+			.mui-input-row label~input, .mui-input-row label~select, .mui-input-row label~textarea{
+				flex: 1;
+				width: auto;
+				float: left;
+			}
+			.mui-input-row label~input.wen-input{
+				width: 50%;
+			}
+			.get-yzm{
+				float: right;
+				color: #fff;
+				background: orange;
+				border: none;
+				line-height: 2.5rem;
+				padding: 0 1rem;
+			}

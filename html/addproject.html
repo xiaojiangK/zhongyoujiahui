@@ -1,0 +1,568 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/datePicker.css" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+        position: absolute;
+        right: 1rem;
+        top: 0;
+        font-size: 15px;
+        color: #bbb;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-btn-two{
+        width: 45%;
+        display: inline-block;
+        margin: 0 2%;
+      }
+      .wen-disabled{
+        height: 3.8rem !important;
+      }
+      .get-goods-address{
+        display: inline-flex;
+        width: 65%;
+        height: 40px;
+      }
+      .get-goods-address-list{
+        width:30%;
+        margin-right:3%;
+        position: relative;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" href='home.html'></a>
+			<h1 class="mui-title">项目新增</h1>
+		</header>
+		<div class="mui-content" id='app' hidden>
+			<form class="mui-input-group">
+        <div class="mui-input-row">
+          <label>项目状态：</label>
+          <select class="wen-sel" name="schedule" v-model='schedule'>
+              <option v-for='(item,index) in schedules_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+        </div>
+        <!-- <div class="mui-input-row">
+					<label>*是否跨区项目</label>
+          <select class="wen-sel" name="cross_region" v-model='cross_region'>
+            <option v-for="item in cross_region_options" :value="item.value">{{item.name}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div> -->
+        <!-- <div class="mui-input-row">
+					<label>项目所属大区：</label>
+          <select class="wen-sel" name="region" v-model='region'>
+            <option v-for='(item,index) in regin_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div> -->
+        <div class="mui-input-row">
+					<label>*项目名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目名称" name='name' v-model='name'>
+				</div>
+        <div class="mui-input-row">
+					<label>项目类型：</label>
+          <select class="wen-sel" name="type" v-model='type'>
+              <option v-for='(item,index) in type_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div>
+        <div class="mui-input-row">
+					<label>*公司类型：</label>
+          <select class="wen-sel" name="company_subject" v-model='company_subject'>
+            <option v-for='(item,index) in subjects_options' :value="index">{{item}}</option>
+          </select>
+          <span class="mui-icon mui-icon-arrowdown wen-seldownicon"></span>
+				</div>
+        <div class="mui-input-row">
+          <label>*项目地址：</label>
+          <div class="get-goods-address">
+            <div class="get-goods-address-list">
+              <select class="wen-sel" name="province" v-model='province' @change='renewaddress'>
+                <option v-for='(item,index) in province_options' :value="index">{{item.province}}</option>
+              </select>
+              <span class="mui-icon mui-icon-arrowdown wen-seldownicon" style="right:0rem;"></span>
+            </div>
+            <div class="get-goods-address-list">
+              <select class="wen-sel" name="city" v-model='city' @change='renewaddress'>
+                <option v-for='(item,index) in city_options' :value="index">{{item.city}}</option>
+              </select>
+              <span class="mui-icon mui-icon-arrowdown wen-seldownicon" style="right:0rem;"></span>
+            </div>
+            <div class="get-goods-address-list">
+              <select class="wen-sel" name="area" v-model='area' @change='renewaddress'>
+                <option v-for='(item,index) in area_options' :value="index">{{item.area}}</option>
+              </select>
+              <span class="mui-icon mui-icon-arrowdown wen-seldownicon" style="right:0rem;"></span>
+            </div>
+          </div>
+        </div>
+        <div class="mui-input-row">
+          <label>*详细地址：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写详细地址" v-model='address'>
+        </div>
+        <div class="mui-input-row">
+					<label>*项目甲方（开发商）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目甲方（开发商）" v-model='developers'>
+				</div>
+        <div class="mui-input-row">
+					<label>*乙方（总包方）：</label>
+          <input type="text" class="mui-input-clear mui-input wen-disabled" v-model='general_contractor'>
+				</div>
+        <div class="mui-input-row">
+					<label>*设计院：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写设计院" v-model='design_institute'>
+				</div>
+        <div class="mui-input-row">
+					<label>*项目总面积（㎡）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目总面积" v-model='total_area'>
+				</div>
+        <div class="mui-input-row">
+					<label>防水总造价（元）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写防水总造价" v-model='total_cost'>
+				</div>
+        <div class="mui-input-row">
+					<label>*项目防水面积（㎡）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写项目防水面积" v-model='waterproof_area'>
+				</div>
+        <div class="mui-input-row">
+					<label>防水主要部位：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写防水主要部位" v-model='main_parts'>
+				</div>
+        <div class="mui-input-row">
+					<label>标段：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写标段" v-model='bid'>
+				</div>
+        <div class="mui-input-row">
+					<label>*主要使用材料名称：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写主要使用材料名称" v-model='main_material'>
+				</div>
+        <div class="mui-input-row">
+          <label>*项目计划开工期：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请选择日期" readonly v-model='planned_start_up_period' id='demo1'>
+        </div>
+        <div class="mui-input-row">
+					<label>*现场联系人（姓名）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写所属关系客户（姓名）" v-model='customer_name'>
+				</div>
+        <!-- <div class="mui-input-row">
+					<label>*现场联系人（单位）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写所属关系客户（单位）" v-model='customer_unit'>
+				</div> -->
+        <!-- <div class="mui-input-row">
+          <label>*现场联系人（地址）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写所属关系客户（地址）" v-model='customer_address'>
+        </div> -->
+        <div class="mui-input-row">
+          <label>*现场联系人（电话）：</label>
+          <input type="text" class="mui-input-clear mui-input" placeholder="请填写所属关系客户（电话）" v-model='customer_phone'>
+        </div>
+			</form>
+			<div class="mui-content-padded">
+        <button class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" @click="saveData">保存</button>
+				<button id='sendMail' class="mui-btn mui-btn-block mui-btn-primary wen-btn-two" @click="sumbitProject">提交</button>
+			</div>
+      <!-- <div class="wen-contract">关联合同</div> -->
+      <div style="text-align:center;position:fixed;bottom:20%;width:100%;z-index:101;" id='remindPopup' hidden>
+        <span style="background:rgba(0,0,0,0.4);display:inline-block;border-radius:3px;color:#fff;padding:.5rem 1rem;">{{remindTxt}}</span>
+      </div>
+		</div>
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+</body>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/datePicker.js"></script>
+
+<script type="text/javascript">
+
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   $('#app').css('margin-top','2rem')
+
+  var flag = true;
+  var vue = new Vue({
+    el:'#app',
+    data:{
+      remindTxt:'',
+      schedule:0,
+      schedules_options:[],
+      cross_region:1, // 默认选中第一项
+      cross_region_options:[
+        {name:'是',value:1},
+        {name:'否',value:0}
+      ],
+      region:0, // 默认选中第一项
+      regin_options:[],
+      company_subject:0,
+      subjects_options:[],
+      name:'',
+      province:0,
+      province_options:[],
+      city:0,
+      city_options:[],
+      area:0,
+      area_options:[],
+      address:'',
+      type:0,
+      type_options:[],
+      developers:'',
+      design_institute:'',
+      total_area:'',
+      main_material:'',
+      bid:'',
+      main_parts:'',
+      general_contractor:'',
+      total_cost:'',
+      waterproof_area:'',
+      planned_start_up_period:'',
+      user_id:'',
+      customer_unit:'',
+      customer_address:'',
+      customer_name:'',
+      customer_phone:'',
+      customer_options:'',
+      customer_index:0,
+      currentdate:''
+    },
+    methods:{
+
+      saveData(){
+        if(this.name){
+          getNowFormatDate();
+          var len = 0
+          if(localStorage.getItem('noSaveProjectList')){
+            len = localStorage.getItem('noSaveProjectList').length
+          }
+          var storageProjectList = window.localStorage.getItem( 'noSaveProjectList' );
+          storageProjectList = storageProjectList ? JSON.parse( storageProjectList ) : [];
+          var areaId = 0;
+          var areaName = '';
+          var area = this.area_options[this.area];
+          if (area) {
+            areaId = area.id;
+            areaName = area.area;
+          }
+          var json = {
+            index : len,
+            region:this.region,
+            state_name:this.schedules_options[this.schedule],
+            name:this.name,
+            province:this.province_options[this.province].id,
+            province_name:this.province_options[this.province].province,
+            city:this.city_options[this.city].id,
+            city_name:this.city_options[this.city].city,
+            area:areaId,
+            area_name:areaName,
+            address:this.address,
+            type:this.type,
+            developers:this.developers,
+            design_institute:this.design_institute,
+            total_area:this.total_area,
+            main_material:this.main_material,
+            bid:this.bid,
+            company_subject:this.company_subject,
+            main_parts:this.main_parts,
+            general_contractor:this.general_contractor,
+            total_cost:this.total_cost,
+            waterproof_area:this.waterproof_area,
+            planned_start_up_period:this.planned_start_up_period,
+            customer_unit:this.customer_unit,
+            customer_address:this.customer_address,
+            customer_name:this.customer_name,
+            customer_phone:this.customer_phone,
+            schedule:this.schedule,
+            update_time:vue.currentdate
+          }
+          storageProjectList.push(json)
+          window.localStorage.setItem('noSaveProjectList',JSON.stringify(storageProjectList))
+          vue.remindTxt = '保存成功'
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+            window.location.href = 'home.html'
+
+          })
+        }else{
+          vue.remindTxt = '项目名称不可为空'
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+          })
+        }
+
+      },
+      sumbitProject(){
+        if (!flag) {
+          return
+        };
+        flag = false;
+        var areaId = 0;
+        var area = this.area_options[this.area];
+        if (area) {
+          areaId = area.id;
+        }
+        // 项目报备
+        api.ajax({
+            url: useUrl.projectCreate,
+            method: 'post',
+            data: {
+                values: {
+                    token: localStorage.getItem('token'),
+                    // cross_region: this.cross_region,
+                    region:this.region,
+                    name:this.name,
+                    province_id:this.province_options[this.province].id,
+                    city_id:this.city_options[this.city].id,
+                    area_id:areaId,
+                    address:this.address,
+                    type:this.type,
+                    developers:this.developers,
+                    design_institute:this.design_institute,
+                    total_area:this.total_area,
+                    main_material:this.main_material,
+                    bid:this.bid,
+                    company_subject:this.company_subject,
+                    main_parts:this.main_parts,
+                    general_contractor:this.general_contractor,
+                    total_cost:this.total_cost,
+                    waterproof_area:this.waterproof_area,
+                    planned_start_up_period:this.planned_start_up_period,
+                    user_id:this.customer_options[this.customer_index].id,
+                    // customer_unit:this.customer_unit,
+                    // customer_address:this.customer_address,
+                    customer_name:this.customer_name,
+                    customer_phone:this.customer_phone,
+                    schedule:this.schedule
+                }
+            }
+        },function(ret, err){
+            if (ret.code == 200) {
+              vue.remindTxt = '提交成功'
+              $("#remindPopup").animate({display:'block'},1000,function(){
+                $(this).css('display','none')
+                  window.location.href = 'home.html'
+              })
+            } else {
+              flag = true;
+              vue.remindTxt = '信息未填写完整'
+              $("#remindPopup").animate({display:'block'},1000,function(){
+                $(this).css('display','none')
+              })
+            }
+        });
+
+      },
+      renewaddress(){
+        getGoodsAddress()
+      }
+    }
+  })
+
+    // 项目进度列表
+    api.ajax({
+        url: useUrl.projectSchedules,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+            vue.schedules_options = ret.data;
+        }
+    });
+
+    // 项目大区列表
+    api.ajax({
+        url: useUrl.projectRegions,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+            vue.regin_options = ret.data;
+        }
+    });
+
+    //项目公司主体列表
+    api.ajax({
+        url: useUrl.projectSubjects,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+            vue.subjects_options = ret.data;
+        }
+    });
+
+    // 客户id
+    api.ajax({
+        url: useUrl.userAll,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+            vue.customer_options = ret.data;
+        }
+    });
+
+    // 项目类型列表
+    api.ajax({
+        url: useUrl.projectTypes,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+      $('#loading').hide();
+      $('#app').show();
+        if (ret.code == 200) {
+            vue.type_options = ret.data;
+        }else{
+          vue.remindTxt = ret.msg
+          $("#remindPopup").animate({display:'block'},1000,function(){
+            $(this).css('display','none')
+          })
+        }
+    });
+
+    // 省市区
+      getGoodsAddress();
+      function getGoodsAddress(){
+        // 省
+        api.ajax({
+            url: useUrl.provincesList,
+            method: 'get',
+            data: {
+                values: {
+                    token: localStorage.getItem('token')
+                }
+            }
+        },function(ret1, err){
+            if (ret1.code == 200) {
+                vue.province_options =  ret1.data;
+
+                // 市
+                api.ajax({
+                    url: useUrl.citysList,
+                    method: 'get',
+                    data: {
+                        values: {
+                            token: localStorage.getItem('token'),
+                            province_id: vue.province_options[vue.province].id
+                        }
+                    }
+                },function(ret2, err){
+                    if (ret2.code == 200) {
+                        vue.city_options =  ret2.data;
+
+                        // 区
+                        api.ajax({
+                            url: useUrl.areasList,
+                            method: 'get',
+                            data: {
+                                values: {
+                                    token: localStorage.getItem('token'),
+                                    city_id: vue.city_options[vue.city].id
+                                }
+                            }
+                        },function(ret3, err){
+                            if (ret3.code == 200) {
+                                vue.area_options =  ret3.data;
+                            } else {
+
+                            }
+                        });
+                    } else {
+
+                    }
+                });
+            } else {
+
+            }
+        });
+      }
+
+
+      // 获取当前日期
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      var time = year + '-' + month + '-' + day
+      var calendar = new datePicker();
+
+      calendar.init({
+          'trigger': '#demo1', /*按钮选择器，用于触发弹出插件*/
+          'type': 'date',/*模式：date日期；datetime日期时间；time时间；ym年月；*/
+          'minDate':time,/*最小日期*/
+          'maxDate':'2100-12-31',/*最大日期*/
+          'onSubmit':function(){/*确认时触发事件*/
+              vue.planned_start_up_period = calendar.value;
+          },
+          'onClose':function(){/*取消时触发事件*/
+          }
+      });
+
+      function getNowFormatDate() {
+         var date = new Date();
+         var seperator1 = "-";
+         var year = date.getFullYear();
+         var month = date.getMonth() + 1;
+         var strDate = date.getDate();
+         if (month >= 1 && month <= 9) {
+             month = "0" + month;
+         }
+         if (strDate >= 0 && strDate <= 9) {
+             strDate = "0" + strDate;
+         }
+         var currentdate = year + seperator1 + month + seperator1 + strDate;
+         vue.currentdate = currentdate
+     }
+
+  }
+
+
+</script>
+</html>

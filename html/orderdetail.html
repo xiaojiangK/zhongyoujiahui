@@ -1,0 +1,261 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .mui-input-group .mui-input-row{
+        height: auto;
+      }
+      .mui-input-row label{
+        font-size: .9rem;
+        line-height: 1.2rem;
+      }
+      .wen-byplugin{
+        width: 65%;
+        vertical-align: middle;
+        line-height: 2.6rem;
+      }
+      .wen-seldownicon{
+        line-height: 2.6rem;
+      }
+      .wen-contract{
+        margin: 2rem auto;
+        text-align: center;
+        font-size: 1rem;
+        text-decoration: underline;
+        color: blue;
+      }
+      .wen-project-info{
+        width: 65%;
+        vertical-align: middle;
+        line-height: 2.6rem;
+      }
+      .wen-disabled{
+        height: 3.8rem;
+        background: #ddd;
+      }
+      .wen-project-ipt{
+        opacity: 0;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+			<a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" onclick="api.closeWin()"></a>
+			<h1 class="mui-title">订单详情</h1>
+		</header>
+		<div class="mui-content" id='app' hidden>
+      <!-- 进度条 -->
+      <div v-if='!operational'>
+        <div class="progressBar">
+          <div>
+            <span :style="'width:' + widthPer "></span>
+          </div>
+          <!-- 五个圆 -->
+          <span v-for="(item,index) in review_progress" :style="index <= rate ? 'background:'+ [bg] + ';left:'+ dotLeft[index] : '' + ';left:'+ dotLeft[index]"></span>
+        </div>
+        <div class="progressName">
+          <span v-for="(item,index) in review_progress" :style="'right:' + navbarLeft[index]">{{item.name}}</span>
+        </div>
+      </div>
+
+
+			<form class="mui-input-group">
+        <div class="mui-input-row">
+					<label>*订单编号：</label>
+          <div class="wen-project-info">{{number}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>*项目名称：</label>
+          <div class="wen-project-info">{{orderDetailInfo.project_name}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>*客户名称：</label>
+          <div class="wen-project-info">{{orderDetailInfo.user_name}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>订货日期：</label>
+          <div class="wen-project-info">{{orderDetailInfo.order_date}}</div>
+				</div>
+        <!-- <div class="mui-input-row">
+					<label>预计付款日期：</label>
+          <div class="wen-project-info">{{orderDetailInfo.committed_payment_time}}</div>
+				</div> -->
+        <div class="mui-input-row">
+					<label>要求发货日期：</label>
+          <div class="wen-project-info">{{orderDetailInfo.required_delivery_date}}</div>
+				</div>
+        <div class="mui-input-row">
+          <label>付款时间：</label>
+          <div class="wen-project-info">{{orderDetailInfo.committed_remittance_time}}</div>
+        </div>
+        <div class="mui-input-row">
+					<label>*交付方式：</label>
+          <div class="wen-project-info">{{delivery_mode_options[orderDetailInfo.delivery_mode]}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>备注：</label>
+          <div class="wen-project-info">{{orderDetailInfo.note}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>检测报告合格证：</label>
+          <div class="wen-project-info">{{orderDetailInfo.inspection_report_certificate}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>运费支付方：</label>
+          <div class="wen-project-info">{{freight_payer_options[orderDetailInfo.freight_payer]}}</div>
+				</div>
+
+        <div class="mui-input-row">
+					<label>收货地址：</label>
+          <div class="wen-project-info">{{orderDetailInfo.province}},{{orderDetailInfo.city}},{{orderDetailInfo.area}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>详细地址：</label>
+          <div class="wen-project-info">{{orderDetailInfo.address}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>现场收货人：</label>
+          <div class="wen-project-info">{{orderDetailInfo.consignee_name}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>现场收货人电话：</label>
+          <div class="wen-project-info">{{orderDetailInfo.consignee_phone}}</div>
+				</div>
+        <div class="mui-input-row">
+					<label>合计金额（元）：</label>
+          <div class="wen-project-info">{{orderDetailInfo.total_amount}}</div>
+				</div>
+
+			</form>
+      <ul class="mui-table-view" style="margin-top: 1rem;">
+        <li class="mui-table-view-cell" @click='gotoOrderList'>
+					<a class="mui-navigate-right" href='javascript:void(0)'>
+						订单产品列
+					</a>
+				</li>
+				<li class="mui-table-view-cell">
+					<a class="mui-navigate-right"  @click='writeInvoice'>
+						出库单
+					</a>
+				</li>
+			</ul>
+		</div>
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+</body>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#app').css('margin-top','2rem')
+
+  var pageParam = api.pageParam;
+  var id = pageParam.id
+
+  var vue = new Vue({
+    el:'#app',
+    data:{
+      orderDetailInfo:'',
+      number:pageParam.number,
+      freight_payer_options:["订货方支付","中油支付","双方支付"],
+      delivery_mode_options:['客户自提','当地物流点自提','物流送货','海运'],
+      review_progress:'',
+      review_state:'',
+       rate:'',
+       bg:'green',
+       widthPer:'',
+       navbarLeft:[],
+       dotLeft:[],
+       operational:false
+    },
+    methods:{
+        gotoOrderList(){
+          api.openWin({
+              name: 'orderlist',
+              url: './orderlist.html',
+              pageParam: {
+                  products: vue.orderDetailInfo.products
+              }
+          });
+
+        },
+        writeInvoice(){
+          api.openWin({
+              name: 'outOrder',
+              url: './outOrder.html',
+              pageParam: {
+                  id: id
+              }
+          });
+
+        }
+    }
+  })
+
+    // 订单详情
+    api.ajax({
+        url: useUrl.orderDetail,
+        method: 'get',
+        data: {
+            values: {
+                id: id,
+                token:localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+      $('#loading').hide();
+      $('#app').show();
+        if (ret.code == 200) {
+          vue.orderDetailInfo = ret.data;
+          vue.review_progress = ret.data.review_progress;
+          vue.review_state = ret.data.review_state;
+          // 审核进度
+          for(var i = 0 ; i < vue.review_progress.length; i ++){
+            vue.dotLeft.push  ( (100 / ( vue.review_progress.length-1) ) * i + '%' )
+            vue.navbarLeft.push  ( (100 / ( vue.review_progress.length-1) ) * (vue.review_progress.length - i - 1) - 13 + '%' )
+            if(vue.review_state == vue.review_progress[i].id){
+              vue.rate = i
+              vue.widthPer = (100 / ( vue.review_progress.length-1) ) * i + '%'
+            }
+         }
+        }
+    });
+
+    // 角色判断
+    api.ajax({
+        url: useUrl.adminRoles,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          $.each(ret.data,function(i,res){
+            vue.operational = false
+            res == '2' && (vue.operational = true)
+            res == '3' && (vue.operational = true)
+            res == '4' && (vue.operational = true)
+          })
+        }
+    });
+
+
+}
+</script>
+</html>

@@ -1,0 +1,112 @@
+	.main-txt {
+	    color: #000000;
+	}
+
+	.list-time {
+	    font-size: 1rem;
+			color:#666;
+			font-size: 0.9rem;
+	}
+	.homne-list{
+		line-height: 1.5rem;
+		font-size: 0.9rem;
+	}
+	.special-txt {
+	    color: blue;
+	    font-size: .8rem;
+	    vertical-align: middle;
+	    float: right;
+	}
+
+	.special-small-txt {
+	    color: blue;
+	    font-size: .7rem;
+	    vertical-align: middle;
+	}
+
+	.list-item-header {
+	    border-bottom: 1px solid #ddd;
+	    width: 100%;
+	    display: flex;
+	    margin-bottom: .8rem;
+	}
+
+	.list-item-header-txt {
+	    font-size: .9rem;
+	    flex: 1;
+			color:#666;
+	}
+
+	.right-btn {
+	    margin-top: 1rem;
+	}
+
+	.home-item {
+	    margin-top: 1rem;
+	    background: #fff;
+	}
+
+	.mui-table-view-cell:after {
+	    background: none;
+	}
+	.wen-selbox{
+		margin-bottom: 0;
+    position: fixed;
+    top: 2.8rem;
+		/*top: 4.2rem;*/
+    z-index: 1;
+    background: #fff;
+    width: 100%;
+	}
+	.wen-sel{
+		margin:0;
+		width: 70%;
+		font-size: .8rem;
+	}
+	.wen-fixcontent{
+		margin-top:2.6rem;
+	}
+	.wen-seldownicon{
+		line-height: 1.7;
+		padding: 0 .1rem;
+		position: absolute;
+		right: 5rem;
+		top: 0;
+		color:#bbb;
+		font-size: 15px;
+	}
+	.wen-searchbtn {
+		color: #007aff;
+		position: absolute;
+		right: 0;
+		top: .1rem;
+		width: 30%;
+		height: 2.5rem;
+		line-height: 2.5rem;
+		background: none;
+		text-align: center;
+		border-left:1px solid #f7f7f7;
+	}
+	.home-item a.wen-todetail{
+		width: 82%;
+		display: block;
+		position: absolute;
+		height: 100%;
+	}
+	.selDiv {
+    float: right;
+    position: relative;
+    height: 2rem;
+}
+.selOptions {
+    margin-top: 0px;
+    border: 1px solid #ddd !important;
+    width: 4rem;
+		font-size: .8rem;
+		height:1.5rem;
+		text-align: center;
+		padding:.1rem 0 0 .3rem;
+}
+.cancel-btn{
+	float: right;
+}

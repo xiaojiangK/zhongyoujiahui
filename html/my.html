@@ -1,0 +1,230 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+      .my-headimg{
+        border-radius: 50%;
+        width: 5rem;
+        height: 5rem;
+        /*background: #ddd;*/
+        margin:1rem auto;
+        text-align: center;
+        position: relative;
+      }
+      .my-headimg img{
+        width: 250%;
+        position: absolute;
+        left: -3.5rem;
+        top:-1.5rem;
+        display: block;;
+      }
+      .my-name{
+        text-align: center;
+      }
+      /*提醒框*/
+      .promptDialog {
+          position: fixed;
+          z-index: 11;
+          background: rgba(0,0,0,0.4);
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+      }
+      .promptBox {
+          position: fixed;
+          z-index: 11;
+          width: 100%;
+          height: 7rem;
+          left: 0;
+          bottom: 0;
+          background: #fff;
+          padding: 0;
+          margin: 0;
+      }
+      .confirm {
+          color: #b72121;
+      }
+      .promptBox li {
+          list-style: none;
+          padding: 1rem;
+          border-bottom: 1px solid #f9f6f6;
+          text-align: center;
+      }
+      .promptBox li:last-child {
+          border-bottom: none;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" style="padding-right: 15px;" id='header'>
+			<h1 class="mui-title">个人中心</h1>
+		</header>
+		<div class="mui-content" id='app' hidden>
+			<div class="my-headimg">
+				<img src="../image/thum.png" alt="" />
+			</div>
+			<div class="my-name">{{userInfo.name}}</div>
+			<ul class="mui-table-view" style="margin-top: 1rem;">
+        <!-- <li class="mui-table-view-cell">
+					<a class="mui-navigate-right" href='myinfo.html'>
+						个人资料
+					</a>
+				</li> -->
+				<!-- <li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						进度查询
+					</a>
+				</li>-->
+				<li class="mui-table-view-cell" v-if='operational'>
+					<a class="mui-navigate-right" href='voucher.html'>
+						我的账单
+					</a>
+				</li>
+				<li class="mui-table-view-cell" v-if='operational'>
+					<a class="mui-navigate-right" href='invoice.html'>
+						我的发票
+					</a>
+				</li>
+        <!-- <li class="mui-table-view-cell" v-if='operational'>
+					<a class="mui-navigate-right" href='contract.html'>
+						我的合同
+					</a>
+				</li> -->
+				<!-- <li class="mui-table-view-cell">
+					<a class="mui-navigate-right">
+						待办事项
+					</a>
+				</li> -->
+        <li class="mui-table-view-cell">
+					<a class="mui-navigate-right" @click='showModel'>
+						退出登录
+					</a>
+				</li>
+			</ul>
+
+      <!-- 提示框 -->
+      <div class="promptModel" hidden>
+        <div class="promptDialog"></div>
+        <ul class="promptBox">
+          <li class="confirm" @click='confirm'>退出登录</li>
+          <li class='cancle' @click='cancle'>取消</li>
+        </ul>
+      </div>
+		</div>
+
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+
+    <footer class="mui-bar mui-bar-tab " id="footer">
+      <a class="mui-tab-item" id="a1" tapmode onclick="randomSwitchBth(this,'项目',0)" >
+        <span class="mui-icon mui-icon-home"></span>
+        <span class="mui-tab-label">项目</span>
+      </a>
+      <a class="mui-tab-item" id="a2" tapmode onclick="randomSwitchBth(this,'订单',1)" >
+        <span class="mui-icon mui-icon-email">
+        </span>
+        <span class="mui-tab-label">订单</span>
+      </a>
+      <a class="mui-tab-item mui-active " id="a3" tapmode onclick="randomSwitchBth(this,'个人中心',2)" >
+        <span class="mui-icon mui-icon-person"></span>
+        <span class="mui-tab-label">个人中心</span>
+      </a>
+    </footer>
+</body>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+  function randomSwitchBth(obj, name, index) {
+      var footerAct = $api.dom(footer, '.mui-tab-item.mui-active');
+      $api.removeCls(footerAct, 'mui-active');
+      $api.addCls(obj, 'mui-active');
+
+      if (index == 0) {
+          window.location.href = 'home.html'
+      } else if (index == 1) {
+          window.location.href = 'order.html'
+      } else if (index == 2) {
+          return false;
+      }
+  }
+
+
+  apiready = function(){
+    var header = document.querySelector('#header');
+     $api.fixStatusBar(header);
+     var headerH = $api.offset(header).h
+     $('#app').css('margin-top',headerH)
+     $('.wen-selbox').css('top',headerH)
+
+    var vue = new Vue({
+      el:'#app',
+      data:{
+        userInfo:'',
+        operational:false
+      },
+      methods:{
+        showModel(){
+          $('.promptModel').show();
+        },
+        confirm(){
+          $('.promptModel').hide();
+          localStorage.setItem('token','')
+          localStorage.setItem('noSaveProjectList','')
+          window.location.href = './login.html'
+        },
+        cancle(){
+          $('.promptModel').hide();
+        }
+      }
+    })
+    api.ajax({
+        url: useUrl.info,
+        method: 'get',
+        data: {
+            values: {
+                token:localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        vue.userInfo = ret.data
+        $('#loading').hide();
+        $('#app').show();
+    });
+
+    // 角色判断
+    api.ajax({
+        url: useUrl.adminRoles,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          $.each(ret.data,function(i,res){
+            vue.operational = false
+            res == '2' && (vue.operational = true)
+            res == '3' && (vue.operational = true)
+            res == '4' && (vue.operational = true)
+          })
+        }
+    });
+
+  }
+
+
+</script>
+</html>

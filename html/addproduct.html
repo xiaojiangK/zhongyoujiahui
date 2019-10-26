@@ -1,0 +1,636 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+        .mui-input-group .mui-input-row {
+            height: auto;
+        }
+
+        .mui-input-row label {
+            font-size: .9rem;
+            line-height: 1.2rem;
+        }
+
+        .wen-seldownicon {
+            line-height: 2.6rem;
+            padding-right: 1rem;
+            font-size: 15px;
+            color:#bbb;
+        }
+
+        .wen-contract {
+            margin: 2rem auto;
+            text-align: center;
+            font-size: 1rem;
+            text-decoration: underline;
+            color: blue;
+        }
+        .wen-disabled {
+            height: 3.8rem !important;
+            background: #ddd !important;
+        }
+        input[type=search].wen-search{
+          background: #fff!important;
+          height: 2.5rem;
+          line-height: 2.5rem;
+        }
+        .wen-list-right-info{
+          text-align: right;
+          width: 65%;
+          padding: .6rem 1rem;
+          font-size: 1rem;
+          line-height: 1.6rem;
+        }
+        .mui-input-group{
+          background: none;
+        }
+        .mui-input-group .mui-input-row{
+          background: #fff;
+        }
+        .wen-selbox{
+          position: relative;
+          background: #fff;
+          height: 2.5rem;
+          margin-bottom: 1rem;
+        }
+        .wen-searchbtn {
+          color: #007aff;
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 6rem;
+          height: 2.5rem;
+          line-height: 2.5rem;
+          background: none;
+          text-align: center;
+          border-left:1px solid #f7f7f7;
+        }
+
+        /*弹窗*/
+        .goods-popup {
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        .goods-dialog {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(0,0,0,.6);
+        }
+        .goods-modal {
+            width: 90%;
+            height: 80%;
+            z-index: 101;
+            top: 0;
+            left: 0;
+            background: #fff;
+            margin: auto;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        .goods-title {
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+            font-size: 1.2rem;
+            position: relative;
+        }
+        .goods-items {
+            height: 90%;
+            overflow-y: scroll;
+            padding: 0;
+        }
+        .good-item {
+            list-style: none;
+            margin:.5rem 0;
+        }
+        .good-item input{
+          vertical-align: middle;
+        }
+        .goods-name{
+          font-size: 1rem;
+          margin-left:1rem;
+          vertical-align: middle;
+        }
+
+        /*已经添加的产品列表*/
+        .wen-list-item {
+            background: #fff;
+            padding: 1rem 5%;
+            font-size: .9rem;
+            margin-bottom: .5rem;
+            position: relative;
+          }
+          span.wen-list-name {
+              color: #999;
+              padding-right: .5rem;
+          }
+          .wen-list-desc {
+              width: 80%;
+              display: inline-block;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              vertical-align: middle;
+          }
+          .wen-list-count{
+            color: orange;
+          }
+          .wen-list-price{
+            float: right;
+            color: #999;
+          }
+          .wen-list-ctn {
+              position: relative;
+          }
+          .wen-list-price {
+              color: #999;
+              top: 0;
+              right: 0;
+              position: absolute;
+          }
+          .wen-list-topfixbtn{
+            position: fixed;
+            width:95%;
+            margin:0 auto;
+            left:0;
+            right:0;
+            z-index: 10;
+          }
+          .wen-list-lists{
+            padding:4rem 0;
+          }
+          .bottomBtn{
+            position: fixed;
+            bottom:0;
+            z-index: 100;
+            width:95%;
+            margin:0 2.5%;
+          }
+          .wen-sel{
+            direction: rtl;
+          }
+
+          .cancel-btn{
+          	float: right;
+            position: absolute;
+            top:2rem;
+            right:1rem;
+          }
+
+          .hd-close{
+            position: absolute;
+            right:0rem;
+            top:0rem;
+            width:1.2rem;
+            height: 1.2rem;
+          }
+
+    </style>
+</head>
+
+<body>
+    <header class="mui-bar mui-bar-nav" id='header'>
+        <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" onclick="api.closeWin()"></a>
+        <h1 class="mui-title">添加产品</h1>
+    </header>
+    <div class="mui-content" id='apps'>
+        <div class="wen-selbox">
+            <input  class="mui-input-clear wen-search" type='text' placeholder="填写产品名称、编号、描述" v-model='searchName' style="width:80%;height:100%;padding-left:1rem;border:none;line-height:normal;">
+            <div class="wen-searchbtn mui-icon mui-icon-search" @click='searchProjectList'></div>
+        </div>
+        <div v-if='isshowGoodsInfo'>
+          <form class="mui-input-group">
+
+              <div class="mui-input-row">
+                  <label>产品代码：</label>
+                  <div class="mui-input-clear mui-input wen-list-right-info">{{order_number}}</div>
+              </div>
+               <div class="mui-input-row">
+                  <label>产品名称：</label>
+                  <div class="mui-input-clear mui-input wen-list-right-info">{{project_name}}</div>
+              </div>
+              <div class="mui-input-row">
+                  <label>产品规格：</label>
+                  <div class="mui-input-clear mui-input wen-list-right-info">{{goods_specification}}</div>
+              </div>
+              <div class="mui-input-row">
+                  <label>执行标准：</label>
+                  <div class="mui-input-clear mui-input wen-list-right-info">{{execution_standard}}</div>
+              </div>
+              <div class="mui-input-row">
+                  <label>产品单位：</label>
+                  <div class="mui-input-clear mui-input wen-list-right-info">{{FSaleUnitName}}</div>
+              </div>
+              <div style="margin-top:2rem;">
+
+              </div>
+              <div class="mui-input-row">
+                  <label>产品数量：</label>
+                  <input type="number" class="mui-input-clear mui-input wen-list-right-info" placeholder="请输入产品数量" v-model='number' @blur.prevent='calMoney'>
+              </div>
+              <div class="mui-input-row">
+                  <label>产品单价：</label>
+                  <input type="number" class="mui-input-clear mui-input wen-list-right-info" placeholder="请填写价格" v-model='unit_price' @blur.prevent='calMoney'>
+              </div>
+              <div class="mui-input-row" v-if='user'>
+                  <label>开票单价：</label>
+                  <input type="number" class="mui-input-clear mui-input wen-list-right-info" placeholder="请填写价格" v-model='proxy_unit_price'>
+              </div>
+              <div class="mui-input-row wen-disabled">
+                  <label>金额（元）：</label>
+                  <input type="number" class="mui-input-clear mui-input wen-list-right-info" value='' disabled v-model='allMoney'>
+              </div>
+              <div class="mui-input-row">
+                  <label>其它产品备注：</label>
+                  <input type="text" class="mui-input-clear mui-input wen-list-right-info" placeholder="对产品规格等有特殊备注" v-model='other_project_note'>
+              </div>
+          </form>
+          <div class="mui-content-padded">
+              <button class="mui-btn mui-btn-block mui-btn-primary" @click="createOrder">下一步</button>
+          </div>
+        </div>
+
+        <!-- 弹窗 -->
+        <div class="goods-popup" hidden id='showPopup'>
+          <div class="goods-dialog" tapmode @click.stop='cloceModal'></div>
+          <div class="goods-modal">
+            <div class="goods-title">
+              选择产品
+              <image src='../image/close1.png' class="hd-close" tapmode @click.stop='cloceModal'></image>
+            </div>
+            <ul class="goods-items">
+              <li class="good-item" v-for='item in goodsList' tapmode @click.stop='checkGoods(item.FMaterialID,item.FNumber,item.FName,item.FSpecification,item.FSaleUnitId,item.FSaleUnitName,item.FDescription,item.F_PAEZ_Text)'>
+                <input type="radio" name='radio'><span class="goods-name">{{item.FName}} {{item.FSpecification}} {{item.FDescription}} {{item.F_PAEZ_Text}}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      <!-- 提醒 -->
+      <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='noData' hidden>{{remindTxt}}</div>
+		</div>
+
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading' hidden>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+</body>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#apps').css('margin-top','1.5rem')
+
+    var pageParam = api.pageParam; // 页面传参
+
+    // 编辑订单(已提交)
+    if(pageParam.id){
+      localStorage.setItem('orderId',pageParam.id)
+    }
+    // 保存订单信息
+    if(pageParam.project_id){
+      var orderInfo = {
+        project_id  : pageParam.project_id,
+        currency:pageParam.currency,
+        payment_method:pageParam.payment_method,
+        note:pageParam.note,
+        address:pageParam.address,
+        consignee_name:pageParam.consignee_name,
+        consignee_phone:pageParam.consignee_phone,
+        order_date:pageParam.order_date,
+        committed_payment_time:pageParam.committed_payment_time,
+        required_delivery_date:pageParam.required_delivery_date,
+        committed_remittance_time:pageParam.committed_remittance_time,
+        delivery_mode:pageParam.delivery_mode,
+        freight_payer:pageParam.freight_payer,
+        inspection_report_certificate:pageParam.inspection_report_certificate
+      }
+      localStorage.setItem('orderInfo',JSON.stringify(orderInfo))
+    }
+
+    $('#loading').hide();
+
+    var vue = new Vue({
+      el:'#apps',
+      data:{
+        remindTxt:'',
+        isShow:true,
+        searchName:'',
+        project_name:'',
+        order_number:'',
+        goods_specification:'',
+        execution_standard:'',
+        FSaleUnitId:'',
+        FSaleUnitName:'',
+        // project_index:0,
+        // project_unit_options:[],
+        number:'',
+        unit_price:'',
+        proxy_unit_price:'',
+        allMoney:0,
+        other_project_note:'',
+        page:1,
+        page_size:5,
+        goodsList:[],
+        hadAddGoodsList:[],// 该订单已经添加的产品
+        products:[],
+        product_id:'',
+        unit_Name:'',
+        operational:false,
+        user:true,
+        disabled_btn:true,
+        isshowGoodsInfo:false
+      },
+      methods:{
+        calMoney(){
+          vue.allMoney = Number(vue.number * vue.unit_price).toFixed(2)
+        },
+        // 创建订单
+        createOrder(){
+          if(pageParam.goodsList){
+            vue.hadAddGoodsList = pageParam.goodsList
+            vue.products = pageParam.products
+          }
+          if(this.user){
+            if(this.number && this.unit_price && this.proxy_unit_price){
+              var num = 0;
+              var index = 0
+              var obj = '';
+              var productsObj = '';
+              obj = {product_id:vue.product_id,order_number:this.order_number,project_name:this.project_name,goods_specification:this.goods_specification,execution_standard:this.execution_standard,FDescription:this.FDescription,number:this.number,unit_Name:this.FSaleUnitName,unit_id:this.FSaleUnitId,proxy_unit_price:this.proxy_unit_price,unit_price:this.unit_price,allPrice:Number(this.number * this.unit_price).toFixed(2),note:this.other_project_note}
+              productsObj = {
+                product_id:vue.product_id,
+                unit_id:this.FSaleUnitId,
+                execution_standard:this.execution_standard,
+                number:this.number,
+                unit_price:this.unit_price,
+                proxy_unit_price:this.proxy_unit_price,
+                note:this.other_project_note
+              }
+              if(vue.hadAddGoodsList.length){
+                for(var i = 0; i < vue.hadAddGoodsList.length; i ++ ){
+                  if(vue.product_id == vue.hadAddGoodsList[i].product_id){
+                      num = 1;
+                      index = i
+                  }
+
+                  if(i == vue.hadAddGoodsList.length - 1){
+                    if(num == 1){
+                      vue.hadAddGoodsList[index] = obj
+                      vue.products[index] = productsObj
+                    }else{
+                      vue.hadAddGoodsList.push(obj);
+                      vue.products.push(productsObj)
+                    }
+                    api.openWin({
+                        name: 'productlist',
+                        url: './productlist.html',
+                        reload:true,
+                        pageParam: {
+                          goodsList:vue.hadAddGoodsList,
+                          index:vue.hadAddGoodsList.length - 1,
+                          products:vue.products
+                        }
+                    });
+                  }
+                }
+              }else{
+                vue.hadAddGoodsList.push(obj);
+                vue.products.push(productsObj)
+                api.openWin({
+                    name: 'productlist',
+                    url: './productlist.html',
+                    reload:true,
+                    pageParam: {
+                      goodsList:vue.hadAddGoodsList,
+                      index:vue.hadAddGoodsList.length - 1,
+                      products:vue.products
+                    }
+                });
+              }
+            }else{
+              api.toast({
+                  msg: '价格、数量和代理单价必填',
+                  duration: 2000,
+                  location: 'bottom'
+              });
+            }
+          }else{
+            if(this.number && this.unit_price){
+              var num = 0;
+              var index = 0
+              var obj = '';
+              var productsObj = '';
+              obj = {product_id:vue.product_id,order_number:this.order_number,project_name:this.project_name,goods_specification:this.goods_specification,execution_standard:this.execution_standard,FDescription:this.FDescription,number:this.number,unit_Name:this.FSaleUnitName,unit_id:this.FSaleUnitId,proxy_unit_price:this.proxy_unit_price,unit_price:this.unit_price,allPrice:Number(this.number * this.unit_price).toFixed(2),note:this.other_project_note}
+              productsObj = {
+                product_id:vue.product_id,
+                unit_id:this.FSaleUnitId,
+                execution_standard:this.execution_standard,
+                number:this.number,
+                unit_price:this.unit_price,
+                proxy_unit_price:this.proxy_unit_price,
+                note:this.other_project_note
+              }
+              if(vue.hadAddGoodsList.length){
+                for(var i = 0; i < vue.hadAddGoodsList.length; i ++ ){
+                  if(vue.product_id == vue.hadAddGoodsList[i].product_id){
+                      num = 1;
+                      index = i
+                  }
+
+                  if(i == vue.hadAddGoodsList.length - 1){
+                    if(num == 1){
+                      vue.hadAddGoodsList[index] = obj
+                      vue.products[index] = productsObj
+                    }else{
+                      vue.hadAddGoodsList.push(obj);
+                      vue.products.push(productsObj)
+                    }
+                    api.openWin({
+                        name: 'productlist',
+                        url: './productlist.html',
+                        reload:true,
+                        pageParam: {
+                          goodsList:vue.hadAddGoodsList,
+                          index:vue.hadAddGoodsList.length - 1,
+                          products:vue.products
+                        }
+                    });
+                  }
+                }
+              }else{
+                vue.hadAddGoodsList.push(obj);
+                vue.products.push(productsObj)
+                api.openWin({
+                    name: 'productlist',
+                    url: './productlist.html',
+                    reload:true,
+                    pageParam: {
+                      goodsList:vue.hadAddGoodsList,
+                      index:vue.hadAddGoodsList.length - 1,
+                      products:vue.products
+                    }
+                });
+              }
+            }else{
+              api.toast({
+                  msg: '价格、数量必填',
+                  duration: 2000,
+                  location: 'bottom'
+              });
+            }
+          }
+
+
+        },
+        searchProjectList(){
+          $('#loading').show();
+          var vue = this
+          $('#noData').hide()
+          if(this.searchName){
+            api.ajax({
+                url: useUrl.productAll,
+                method: 'get',
+                data: {
+                    values: {
+                        page: this.page,
+                        page_size:this.page_size,
+                        name:this.searchName,
+                        token:localStorage.getItem('token'),
+                        province_id:pageParam.province_id,
+                        city_id:pageParam.city_id,
+                        area_id:pageParam.area_id
+                    }
+                }
+            },function(ret, err){
+                $('#loading').hide();
+                if (ret.code == 200) {
+                  if(ret.data.length){
+                    vue.goodsList = ret.data;
+                    $('#showPopup').show();
+                  }else{
+                    $('#noData').show()
+                    vue.remindTxt = '找不到相应产品'
+                  }
+
+                } else {
+                  $('#noData').show()
+                  vue.remindTxt = ret.msg
+                }
+            });
+          }else{
+            $('#loading').hide();
+            api.toast({
+                msg: '请填写产品名称',
+                duration: 2000,
+                location: 'bottom'
+            });
+          }
+        },
+        cloceModal(){
+            $('#showPopup').hide();
+        },
+        checkGoods(id,number,name,specification,FSaleUnitId,FSaleUnitName,FDescription,F_PAEZ_Text){
+          var hadAddGoodsLists  = this.hadAddGoodsList;
+
+          if(hadAddGoodsLists.length){
+            for(var i = 0;i < hadAddGoodsLists.length; i++){
+
+              if(number == hadAddGoodsLists[i].order_number){
+                api.toast({
+                    msg: '此订单已经存在该产品了，请重新选择',
+                    duration: 2000,
+                    location: 'bottom'
+                });
+                vue.isshowGoodsInfo = false
+                if(hadAddGoodsLists.length == vue.goodsList.length){//该订单已经添加了全部产品了，没得选择了
+                  $('#showPopup').hide();
+                  vue.searchName = ''
+                }
+              }else{
+                $('#showPopup').hide();
+                vue.searchName = '';
+                this.product_id = id;
+                this.project_name = name;
+                this.order_number = number;
+                this.goods_specification = specification;
+                this.execution_standard = F_PAEZ_Text;
+                this.FDescription = FDescription;
+                this.FSaleUnitId = FSaleUnitId;
+                this.FSaleUnitName = FSaleUnitName;
+                vue.isshowGoodsInfo = true
+                vue.number = '';
+                vue.unit_price = '';
+                vue.allMoney = 0;
+                vue.other_project_note = '';
+                this.proxy_unit_price = '';
+              }
+
+            }
+          }else{
+            $('#showPopup').hide();
+            vue.searchName = '';
+            this.product_id = id;
+            this.project_name = name;
+            this.order_number = number;
+            this.goods_specification = specification;
+            this.execution_standard = F_PAEZ_Text;
+            this.FDescription = FDescription;
+            this.FSaleUnitId = FSaleUnitId;
+            this.FSaleUnitName = FSaleUnitName;
+            vue.isshowGoodsInfo = true
+          }
+
+        }
+      }
+    })
+
+    // 角色判断
+
+    api.ajax({
+        url: useUrl.adminRoles,
+        method: 'get',
+        data: {
+            values: {
+                token: localStorage.getItem('token')
+            }
+        }
+    },function(ret, err){
+        if (ret.code == 200) {
+          $.each(ret.data,function(i,res){
+            vue.operational = false
+            vue.user = true
+            res == '2' && (vue.operational = true)
+            res == '3' && (vue.operational = true)
+            res == '4' && (vue.operational = true)
+            res == '4' && (vue.user = false)
+          })
+        }
+    });
+
+
+
+}
+</script>
+
+</html>

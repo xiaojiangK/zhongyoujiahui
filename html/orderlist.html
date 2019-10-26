@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>中油佳汇</title>
+    <link href="../css/mui.min.css" rel="stylesheet" />
+    <link href="../css/style.css" rel="stylesheet" />
+    <style media="screen">
+    .wen-list-item {
+        background: #fff;
+        padding: 3% 5%;
+        font-size: .9rem;
+        margin-bottom: .5rem;
+      }
+      span.wen-list-name {
+          color: #999;
+          padding-right: .5rem;
+      }
+      .wen-list-desc {
+          width: 80%;
+          display: inline-block;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          vertical-align: middle;
+      }
+      .mui-content-padded {
+        position: fixed;
+        bottom: 0;
+        z-index: 10;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .wen-list-count{
+        color: orange;
+      }
+      .wen-list-price{
+        float: right;
+        color: #999;
+      }
+      .wen-list-ctn {
+          position: relative;
+      }
+      .wen-list-price {
+          color: #999;
+          top: 0;
+          right: 0;
+          position: absolute;
+      }
+      .wen-list-fixbtn{
+        margin-bottom: 0;
+      }
+    </style>
+</head>
+<body>
+  <header class="mui-bar mui-bar-nav" id='header'>
+      <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" onclick="api.closeWin()"></a>
+			<h1 class="mui-title">订单列表</h1>
+		</header>
+		<div class="mui-content" id='app' hidden>
+      <div class="wen-list-lists">
+        <div class="wen-list-item" v-for='item in hadAddGoodsList'>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">名称</span>
+            <span>{{item.product_name}}</span>
+          </div>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">代码</span>
+            <span class="wen-list-desc">{{item.product_number}}</span>
+          </div>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">规格</span>
+            <span class="wen-list-desc">{{item.product_spec}}</span>
+          </div>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">描述</span>
+            <span class="wen-list-desc">{{item.product_description}}</span>
+          </div>
+          <div class="wen-list-ctn" v-if='user'>
+            <span class="wen-list-name">代理价</span>
+            <span class="wen-list-desc">x{{item.proxy_unit_price}}元</span>
+          </div>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">单价</span>
+            <span class="wen-list-desc">x{{item.unit_price}}元</span>
+          </div>
+          <div class="wen-list-ctn">
+            <span class="wen-list-name">数量</span>
+            <span class="wen-list-desc wen-list-count">{{item.number}}{{item.unit_name}}</span>
+            <span class="wen-list-price" style='font-weight:bold;color:blue;'>{{item.unit_price * item.number}}元</span>
+          </div>
+          <div class="wen-list-ctn" v-if='item.note'>
+            <span class="wen-list-name">备注</span>
+            <span class="wen-list-desc">{{item.note}}</span>
+          </div>
+        </div>
+      </div>
+		</div>
+    <!-- 加载中 -->
+    <div style="text-align:center;margin-top:50%;translate:transform(-50%)" id='loading'>
+      <img src="../image/loading_more.gif" alt="">
+    </div>
+</body>
+<script type="text/javascript" src="../script/vue.js"></script>
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/zepto.min.js"></script>
+<script type="text/javascript" src="../res/key.js"></script>
+<script type="text/javascript">
+
+apiready = function(){
+  var header = document.querySelector('#header');
+   $api.fixStatusBar(header);
+   var headerH = $api.offset(header).h
+   $('#app').css('margin-top','2rem')
+
+  var pageParam = api.pageParam
+
+  var vue = new Vue({
+    el:'#app',
+    data:{
+      user:'',
+      hadAddGoodsList:pageParam.products
+    },
+    methods:{
+      addProduct(){
+        window.location.href = 'projectdetail.html'
+      }
+    }
+  })
+  if(vue.hadAddGoodsList){
+    $('#loading').hide();
+    $('#app').show();
+  }
+}
+
+
+
+
+
+</script>
+</html>
